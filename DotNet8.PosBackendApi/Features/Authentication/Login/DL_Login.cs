@@ -20,7 +20,7 @@ public class DL_Login
         var item = await _context.TblStaffs.AsNoTracking()
             .FirstOrDefaultAsync(x => x.StaffName == reqModel.UserName);
 
-        if (item is null || item.Password != reqModel.Password)
+        if (item is null || item.Password != reqModel.Password.ToHash(_tokenModel.Key))
         {
             responseModel = new LoginResponseModel
             {
