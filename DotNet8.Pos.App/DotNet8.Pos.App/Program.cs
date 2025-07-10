@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,12 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7164") });
 builder.Services.AddScoped<HttpClientService>();
 builder.Services.AddScoped<InjectService>();
+
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<CustomAuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(
+    provider => provider.GetRequiredService<CustomAuthStateProvider>()
+    );
 
 builder.Services.AddMudServices();
 builder.Services.AddRadzenComponents();
