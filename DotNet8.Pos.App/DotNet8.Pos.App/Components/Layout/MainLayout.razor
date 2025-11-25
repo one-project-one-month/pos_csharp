@@ -1,4 +1,7 @@
 ﻿@inherits LayoutComponentBase
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+
 @* <div class="page">
     <div class="sidebar">
         <MudNavMenu Rounded="true" Margin="Margin.Dense" Color="Color.Primary" Class="pa-2">
@@ -18,7 +21,7 @@
         </article>
     </main>
 </div>
- *@
+*@
 @*
 <MudDrawerContainer Class="mud-height-full">
     <MudNavMenu Rounded="true" Margin="Margin.Dense" Color="Color.Primary" Class="pa-2">
@@ -49,6 +52,7 @@
                 <MudNavLink Match="NavLinkMatch.All" Href="/tax" Icon="@Icons.Material.Filled.AttachMoney">Tax</MudNavLink>
                 <MudNavLink Match="NavLinkMatch.All" Href="/report" Icon="@Icons.Material.Filled.RepeatOn">Report</MudNavLink>
                 <MudNavLink Match="NavLinkMatch.All" Href="/shop" Icon="@Icons.Material.Filled.Shop">Shop</MudNavLink>
+                 <MudNavLink Match="NavLinkMatch.All" OnClick="Logout" Icon="@Icons.Material.Filled.Logout" Class="mt-4">Logout</MudNavLink>
             </MudNavMenu>
         </MudDrawer>
         <div class="d-flex mud-height-full">
@@ -63,11 +67,17 @@
 {
     bool open = true;
 
-private async Task MenuClick(string url)
-{
-    await InjectService.EnableLoading();
-    Nav.NavigateTo(url);
-}
+    private async Task MenuClick(string url)
+    {
+        await InjectService.EnableLoading();
+        Nav.NavigateTo(url);
+    }
+
+    private async Task Logout()
+    {
+        await AuthStateProvider.ClearTokenAsync();
+        NavigationManager.NavigateTo("/login");
+    }
 }
 
 

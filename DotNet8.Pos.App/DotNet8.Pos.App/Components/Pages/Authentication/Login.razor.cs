@@ -10,27 +10,52 @@ namespace DotNet8.Pos.App.Components.Pages.Authentication;
 public partial class Login
 {
     private LoginRequestModel _loginRequest = new LoginRequestModel();
-    [Inject]
-    private HttpClient Http { get; set; } = default!;
 
     [Inject]
     private CustomAuthStateProvider _authStateProvider { get; set; } = default!;
+
     public async Task LoginUser()
     {
-        var responseModel = await HttpClientService.ExecuteAsync<LoginResponseModel>(
-            $"{Endpoints.Login}",
-            EnumHttpMethod.Post,
-            _loginRequest);
-
-        if(responseModel.Message.IsSuccess == false && responseModel.Message.IsError == true && responseModel.token == null)
+        try
         {
-            NavigationManager.NavigateTo("/login");
-        }      
+            await InjectService.EnableLoading();
+            var responseModel = await HttpClientService.ExecuteAsync<LoginResponseModel>(
+                $"{Endpoints.Login}",
+                EnumHttpMethod.Post,
+                _loginRequest);
 
-        if(responseModel.Message.IsSuccess == true && responseModel.Message.IsError == false && responseModel.token != null)
+            if (responseModel != null && responseModel.Message != null)
+            {
+                if (responseModel.Message.IsSuccess)
+                {
+                    if (!string.IsNullOrEmpty(responseModel.token))
+                    {
+                        await _authStateProvider.SetTokenAsync(responseModel.token);
+                        InjectService.ShowMessage("Login Successful", EnumResponseType.Success);
+                        NavigationManager.NavigateTo("/");
+                    }
+                    else
+                    {
+                        InjectService.ShowMessage("Login failed: Token is missing.", EnumResponseType.Error);
+                    }
+                }
+                else
+                {
+                    InjectService.ShowMessage(responseModel.Message.Message ?? "Login Failed.", EnumResponseType.Error);
+                }
+            }
+            else
+            {
+                InjectService.ShowMessage("Server response is invalid.", EnumResponseType.Error);
+            }
+        }
+        catch (Exception ex)
         {
-            await _authStateProvider.SetTokenAsync(responseModel.token);
-            NavigationManager.NavigateTo("/");
+            InjectService.ShowMessage(ex.Message, EnumResponseType.Error);
+        }
+        finally
+        {
+            await InjectService.DisableLoading();
         }
     }
 }

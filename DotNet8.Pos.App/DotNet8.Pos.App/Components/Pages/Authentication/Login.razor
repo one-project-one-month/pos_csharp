@@ -1,4 +1,5 @@
 ﻿@page "/login"
+@layout LoginLayout
 @using System.Security.Claims
 @using DotNet8.Pos.App.Models.Auth
 @using Microsoft.AspNetCore.Authentication
@@ -6,18 +7,72 @@
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
-<h3>Login</h3>
+<MudCard Elevation="4" Class="pa-8" Style="min-width: 400px; border-radius: 16px;">
+    <EditForm Model="@_loginRequest" OnValidSubmit="LoginUser">
+        <DataAnnotationsValidator />
+        
+        <MudCardHeader Class="d-flex justify-center align-center flex-column pb-6">
+            <CardHeaderContent>
+                <div class="d-flex justify-center mb-4">
+                    <MudIcon Icon="@Icons.Material.Filled.PointOfSale" Size="Size.Large" Color="Color.Primary" Style="width: 64px; height: 64px;" />
+                </div>
+                <MudText Typo="Typo.h4" Align="Align.Center" Color="Color.Primary" Class="mb-1"><b>Welcome Back</b></MudText>
+                <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Secondary">Sign in to continue to POS System</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
 
-<EditForm Model="@_loginRequest" OnValidSubmit="LoginUser">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <div>
-        <label for="username">User Name:</label>
-        <InputText id="username" @bind-Value="_loginRequest.UserName" placeholder="UserName" />
-    </div>
-    <div>
-        <label for="password">Password:</label>
-        <InputText id="password" @bind-Value="_loginRequest.Password" placeholder="Password" type="password" />
-    </div>
-    <button type="submit">Login</button>
-</EditForm>
+        <MudCardContent>
+             <MudTextField @bind-Value="_loginRequest.UserName" 
+                          Label="Username" 
+                          Variant="MudBlazor.Variant.Outlined"
+                          Margin="Margin.Dense"
+                          Class="mb-4"
+                          Adornment="Adornment.Start" 
+                          AdornmentIcon="@Icons.Material.Filled.Person"
+                          For="@(() => _loginRequest.UserName)" />
+
+            <MudTextField @bind-Value="_loginRequest.Password" 
+                          Label="Password" 
+                          Variant="MudBlazor.Variant.Outlined" 
+                          Margin="Margin.Dense"
+                          InputType="@_passwordInputType" 
+                          Adornment="Adornment.End" 
+                          AdornmentIcon="@_passwordInputIcon" 
+                          OnAdornmentClick="TogglePasswordVisibility" 
+                          For="@(() => _loginRequest.Password)" />
+        </MudCardContent>
+
+        <MudCardActions Class="d-flex flex-column gap-2 px-4 pb-4">
+            <MudButton ButtonType="MudBlazor.ButtonType.Submit" 
+                       Variant="MudBlazor.Variant.Filled"
+                       Color="Color.Primary" 
+                       Size="Size.Large" 
+                       FullWidth="true" 
+                       Class="mt-2 rounded-lg">
+                Login
+            </MudButton>
+        </MudCardActions>
+    </EditForm>
+</MudCard>
+
+@code {
+    bool _passwordVisibility;
+    InputType _passwordInputType = InputType.Password;
+    string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    void TogglePasswordVisibility()
+    {
+        @if (_passwordVisibility)
+        {
+            _passwordVisibility = false;
+            _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+            _passwordInputType = InputType.Password;
+        }
+        else
+        {
+            _passwordVisibility = true;
+            _passwordInputIcon = Icons.Material.Filled.Visibility;
+            _passwordInputType = InputType.Text;
+        }
+    }
+}

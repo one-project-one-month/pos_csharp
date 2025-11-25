@@ -6,7 +6,8 @@ public static class DevCode
 {
     public static string ToHash(this string password, string sharedKey)
     {
-        return Hash.Create(HashType.SHA256, password, sharedKey, false);
+        var data = Hash.Create(HashType.SHA256, password, sharedKey, false);
+        return data;
     }
 
     public static DateTime ToDateTime(this DateTime? dateTime)

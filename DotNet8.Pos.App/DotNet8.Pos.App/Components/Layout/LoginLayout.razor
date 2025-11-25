@@ -1,0 +1,15 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<RadzenComponents />
+
+<MudLayout>
+    <MudMainContent Class="d-flex align-center justify-center" Style="height: 100vh; background-color: #f5f5f5;">
+        <MudContainer MaxWidth="MaxWidth.Small">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
