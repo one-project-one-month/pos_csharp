@@ -1,0 +1,20 @@
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Confirm Logout</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText>Are you sure you want to logout?</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Error" OnClick="ConfirmLogout">Logout</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = default!;
+
+    private void ConfirmLogout() => MudDialog.Close(DialogResult.Ok(true));
+    private void Cancel() => MudDialog.Cancel();
+}

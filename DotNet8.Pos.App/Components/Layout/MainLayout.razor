@@ -1,6 +1,8 @@
-﻿@inherits LayoutComponentBase
+﻿@using DotNet8.Pos.App.Components.Dialogs
+@inherits LayoutComponentBase
 @inject CustomAuthStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
+@inject IDialogService DialogService
 
 @* <div class="page">
     <div class="sidebar">
@@ -35,54 +37,92 @@
 </MudDrawerContainer> *@
 
 <MudPaper Height="900px" Style="overflow:hidden; position:relative;">
-    <MudDrawerContainer Class="mud-height-full">
-        <MudDrawer @bind-Open="open" Elevation="0" Variant="@DrawerVariant.Persistent" Color="Color.Default">
-            <MudDrawerHeader>
-                <MudText Typo="Typo.h6">POS</MudText>
-            </MudDrawerHeader>
-            <MudNavMenu Dense="true" Rounded="true" Margin="Margin.Dense" Color="Color.Success" Class="pa-2">
-                <MudNavLink Match="NavLinkMatch.All" Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Href="/product" Icon="@Icons.Material.Filled.ProductionQuantityLimits">Products</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Href="/product-category" Icon="@Icons.Material.Filled.Category">Product Category</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Href="/customer" Icon="@Icons.Material.Filled.Person">Customers</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Href="/staff" Icon="@Icons.Material.Filled.Person4">Staffs</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Href="/township" Icon="@Icons.Material.Filled.Room">Townships</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Href="/state" Icon="@Icons.Material.Filled.AddLocation">States</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Href="/sale-invoice-list" Icon="@Icons.Material.Filled.AssuredWorkload">Sale Invoice</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Href="/tax" Icon="@Icons.Material.Filled.AttachMoney">Tax</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Href="/report" Icon="@Icons.Material.Filled.RepeatOn">Report</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Href="/shop" Icon="@Icons.Material.Filled.Shop">Shop</MudNavLink>
-                 <MudNavLink Match="NavLinkMatch.All" OnClick="Logout" Icon="@Icons.Material.Filled.Logout" Class="mt-4">Logout</MudNavLink>
-            </MudNavMenu>
-        </MudDrawer>
-        <div class="d-flex mud-height-full">
-            <MudContainer MaxWidth="MaxWidth.Large" Class="ma-4">
-                @Body
-            </MudContainer>
-        </div>
-    </MudDrawerContainer>
+	@if (_isLoading)
+	{
+		<div style="position:absolute; top:0; left:0; width:100%; height:100%; background-color:white; z-index:9999; display:flex; justify-content:center; align-items:center;">
+			<div class="loader"></div>
+		</div>
+	}
+	<MudDrawerContainer Class="mud-height-full">
+		<MudDrawer @bind-Open="open" Elevation="0" Variant="@DrawerVariant.Persistent" Color="Color.Default">
+			<MudDrawerHeader>
+				<MudText Typo="Typo.h6">POS</MudText>
+			</MudDrawerHeader>
+			<MudNavMenu Dense="true" Rounded="true" Margin="Margin.Dense" Color="Color.Success" Class="pa-2">
+				<MudNavLink Match="NavLinkMatch.All" Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Href="/product" Icon="@Icons.Material.Filled.ProductionQuantityLimits">Products</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Href="/product-category" Icon="@Icons.Material.Filled.Category">Product Category</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Href="/customer" Icon="@Icons.Material.Filled.Person">Customers</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Href="/staff" Icon="@Icons.Material.Filled.Person4">Staffs</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Href="/township" Icon="@Icons.Material.Filled.Room">Townships</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Href="/state" Icon="@Icons.Material.Filled.AddLocation">States</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Href="/sale-invoice-list" Icon="@Icons.Material.Filled.AssuredWorkload">Sale Invoice</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Href="/tax" Icon="@Icons.Material.Filled.AttachMoney">Tax</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Href="/report" Icon="@Icons.Material.Filled.RepeatOn">Report</MudNavLink>
+				<MudNavLink Match="NavLinkMatch.All" Href="/shop" Icon="@Icons.Material.Filled.Shop">Shop</MudNavLink>
+				<MudDivider />
+				<MudNavLink Match="NavLinkMatch.All"
+							OnClick="Logout"
+							Style="cursor: pointer;"
+							Icon="@Icons.Material.Filled.Logout">
+					Logout
+				</MudNavLink>
+			</MudNavMenu>
+		</MudDrawer>
+		<div class="d-flex mud-height-full">
+			<MudContainer MaxWidth="MaxWidth.Large" Class="ma-4">
+				@Body
+			</MudContainer>
+		</div>
+	</MudDrawerContainer>
 </MudPaper>
 
 @code
 {
-    bool open = true;
+	bool open = true;
+	private bool _isLoading = true;
 
-    private async Task MenuClick(string url)
-    {
-        await InjectService.EnableLoading();
-        Nav.NavigateTo(url);
-    }
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			var state = await AuthStateProvider.GetAuthenticationStateAsync();
+			if (!state.User.Identity?.IsAuthenticated ?? true)
+			{
+				await AuthStateProvider.ClearTokenAsync();
+				NavigationManager.NavigateTo("/login");
+			}
+			else
+			{
+				_isLoading = false;
+				await InjectService.DisableLoading();
+				StateHasChanged();
+			}
+		}
+	}
+
+	private async Task MenuClick(string url)
+	{
+		await InjectService.EnableLoading();
+		Nav.NavigateTo(url);
+	}
 
     private async Task Logout()
     {
-        await AuthStateProvider.ClearTokenAsync();
-        NavigationManager.NavigateTo("/login");
+        var dialog = await DialogService.ShowAsync<LogoutDialog>("Logout");
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await AuthStateProvider.ClearTokenAsync();
+            NavigationManager.NavigateTo("/login");
+        }
     }
 }
 
 
-<MudThemeProvider/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-<RadzenComponents/>
+<RadzenComponents />

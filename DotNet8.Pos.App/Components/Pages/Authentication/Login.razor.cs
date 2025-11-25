@@ -14,10 +14,13 @@ public partial class Login
     [Inject]
     private CustomAuthStateProvider _authStateProvider { get; set; } = default!;
 
+    private bool _isLoading;
+
     public async Task LoginUser()
     {
         try
         {
+            _isLoading = true;
             await InjectService.EnableLoading();
             var responseModel = await HttpClientService.ExecuteAsync<LoginResponseModel>(
                 $"{Endpoints.Login}",
@@ -55,6 +58,7 @@ public partial class Login
         }
         finally
         {
+            _isLoading = false;
             await InjectService.DisableLoading();
         }
     }
