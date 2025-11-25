@@ -11,12 +11,13 @@
 			<div class="loader"></div>
 		</div>
 	}
-
-	<MudAppBar Elevation="1">
-		<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-		<MudText Typo="Typo.h5" Class="ml-3">POS System</MudText>
-		<MudSpacer />
-		@* <div class="d-none d-md-flex">
+	else
+	{
+		<MudAppBar Elevation="1">
+			<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+			<MudText Typo="Typo.h5" Class="ml-3">POS System</MudText>
+			<MudSpacer />
+			@* <div class="d-none d-md-flex">
 			<MudTextField @bind-Value="menuSearchText"
 						  Placeholder="Search menu..."
 						  Variant="MudBlazor.Variant.Outlined"
@@ -28,13 +29,13 @@
 						  AdornmentColor="Color.Default"
 						  Style="max-width: 300px;" /> 
 		</div> *@
-		<div class="d-flex d-md-none">
-			<MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Inherit" OnClick="OpenMobileSearch" />
-		</div>
-		<MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
-	</MudAppBar>
+			<div class="d-flex d-md-none">
+				<MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Inherit" OnClick="OpenMobileSearch" />
+			</div>
+			<MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+		</MudAppBar>
 
-	<MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+		<MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
 			<MudDrawerHeader Class="pa-3">
 				<MudText Typo="Typo.subtitle1" Color="Color.Primary" Class="font-weight-bold">Navigation Menu</MudText>
 			</MudDrawerHeader>
@@ -116,13 +117,14 @@
 					</MudNavLink>
 				}
 			</MudNavMenu>
-	</MudDrawer>
+		</MudDrawer>
 
-	<MudMainContent>
-		<MudContainer Class="pa-4" MaxWidth="MaxWidth.Large">
-			@Body
-		</MudContainer>
-	</MudMainContent>
+		<MudMainContent>
+			<MudContainer Class="pa-4">
+				@Body
+			</MudContainer>
+		</MudMainContent>
+	}
 </MudLayout>
 
 @code

@@ -4,12 +4,17 @@ namespace DotNet8.Pos.App.Components.Pages.SaleInvoice;
 
 public partial class P_SaleReceipt
 {
+    [CascadingParameter]
+    MudDialogInstance? MudDialog { get; set; }
+
     [Parameter]
     public string? VoucherNo { get; set; } = null!;
 
     public SaleInvoiceModel ResponseModel { get; set; }
 
     private int count = 0;
+
+    protected bool IsDialog => MudDialog != null;
 
     protected override async void OnAfterRender(bool firstRender)
     {
@@ -21,6 +26,7 @@ public partial class P_SaleReceipt
             await InjectService.DisableLoading();
         }
     }
+
     private async Task GetSaleInvoice()
     {
         var response = await HttpClientService.ExecuteAsync<SaleInvoiceResponseModel>
@@ -32,6 +38,11 @@ public partial class P_SaleReceipt
         {
             ResponseModel = response.Data.SaleInvoice;
         }
+    }
+
+    private void CloseDialog()
+    {
+        MudDialog?.Close(DialogResult.Ok(true));
     }
 }
 

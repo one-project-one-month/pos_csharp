@@ -57,8 +57,9 @@ public class BL_SaleInvoice
         //if (!saleInvoice.SaleInvoiceDateTime)
         //    throw new Exception("SaleInvoiceDateTime is null");
 
-        if (string.IsNullOrEmpty(saleInvoice.VoucherNo))
-            throw new Exception("VoucherNo is null");
+        // VoucherNo is auto-generated in the data layer, so no need to validate it here
+        // if (string.IsNullOrEmpty(saleInvoice.VoucherNo))
+        //     throw new Exception("VoucherNo is null");
 
         if (saleInvoice.TotalAmount is 0)
             throw new Exception("TotalAmount is not null");

@@ -135,17 +135,25 @@
                             </MudRadioGroup>
                         </div>
 
-                        @if (selectedPaymentMethod == "KBZPay")
-                        {
-                            <div class="mb-4">
-                                <MudTextField @bind-Value="@reqModel.CustomerAccountNo"
-                                              Label="Customer Account No"
-                                              Variant="MudBlazor.Variant.Outlined"
-                                              Adornment="Adornment.Start"
-                                              AdornmentIcon="@Icons.Material.Filled.AccountCircle"
-                                              FullWidth="true" />
-                            </div>
-                        }
+                        <div class="mb-4">
+                            <MudTextField @bind-Value="@reqModel.CustomerCode"
+                                          Label="Customer Code"
+                                          Variant="MudBlazor.Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Person"
+                                          FullWidth="true"
+                                          Required="true" />
+                        </div>
+
+                        <div class="mb-4">
+                            <MudTextField @bind-Value="@reqModel.CustomerAccountNo"
+                                          Label="Customer Account No"
+                                          Variant="MudBlazor.Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.AccountCircle"
+                                          FullWidth="true"
+                                          Required="true" />
+                        </div>
 
                         <div class="mb-4">
                             <MudTextField @bind-Value="@reqModel.PaymentAmount"

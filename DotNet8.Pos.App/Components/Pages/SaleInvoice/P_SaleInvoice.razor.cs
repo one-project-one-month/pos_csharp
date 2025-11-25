@@ -102,11 +102,66 @@ public partial class P_SaleInvoice
 
     private async void CheckoutPay()
     {
+        // Validate SaleInvoiceDetails
+        if (lstSaleInvoice == null || lstSaleInvoice.Count == 0 || lstSaleInvoice.All(x => x.Quantity <= 0))
+        {
+            InjectService.ShowMessage("Please add at least one item to checkout.", EnumResponseType.Error);
+            return;
+        }
+
+        // Validate TotalAmount
+        var totalAmount = lstSaleInvoice.Sum(x => x.Amount);
+        if (totalAmount <= 0)
+        {
+            InjectService.ShowMessage("Total amount must be greater than zero.", EnumResponseType.Error);
+            return;
+        }
+
+        // Validate CustomerAccountNo (required by backend)
+        if (string.IsNullOrWhiteSpace(reqModel.CustomerAccountNo))
+        {
+            InjectService.ShowMessage("Customer Account No is required.", EnumResponseType.Error);
+            return;
+        }
+
+        // Validate PaymentAmount
+        if (reqModel.PaymentAmount == null || reqModel.PaymentAmount <= 0)
+        {
+            InjectService.ShowMessage("Payment Amount must be greater than zero.", EnumResponseType.Error);
+            return;
+        }
+
+        // Validate ReceiveAmount
+        if (reqModel.ReceiveAmount == null || reqModel.ReceiveAmount <= 0)
+        {
+            InjectService.ShowMessage("Receive Amount must be greater than zero.", EnumResponseType.Error);
+            return;
+        }
+
+        // Validate Change (should not be negative)
+        var change = (reqModel.ReceiveAmount ?? 0) - (reqModel.PaymentAmount ?? 0);
+        if (change < 0)
+        {
+            InjectService.ShowMessage("Receive Amount must be greater than or equal to Payment Amount.", EnumResponseType.Error);
+            return;
+        }
+
+        // Validate CustomerCode (required by backend)
+        if (string.IsNullOrWhiteSpace(reqModel.CustomerCode))
+        {
+            reqModel.CustomerCode = "C_001"; // Default customer code
+        }
+
+        // Set model properties
         reqModel.SaleInvoiceDetails = lstSaleInvoice;
         reqModel.SaleInvoiceDateTime = DateTime.Now;
-        reqModel.TotalAmount = lstSaleInvoice.Sum(x => x.Amount);
+        reqModel.TotalAmount = totalAmount;
         reqModel.StaffCode = "S_001";
         reqModel.PaymentType = "KBZPay";
+        reqModel.Discount = reqModel.Discount < 0 ? 0 : reqModel.Discount;
+        reqModel.Tax = reqModel.Tax < 0 ? 0 : reqModel.Tax;
+        //reqModel.Change = change;
+
         Console.WriteLine(JsonConvert.SerializeObject(reqModel).ToString());
         var response = await HttpClientService.ExecuteAsync<SaleInvoiceResponseModel>(
             Endpoints.SaleInvoice,
