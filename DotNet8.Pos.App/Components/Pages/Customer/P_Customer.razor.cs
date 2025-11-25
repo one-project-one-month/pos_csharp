@@ -4,8 +4,8 @@ public partial class P_Customer
 {
     private CustomerListResponseModel? ResponseModel;
 
-    private int _pageNo = 1;
-    private int _pageSize = 10;
+    private int pageNo = 1;
+    private int pageSize = 10;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -21,7 +21,7 @@ public partial class P_Customer
     private async Task List()
     {
         ResponseModel = await HttpClientService.ExecuteAsync<CustomerListResponseModel>(
-            $"{Endpoints.Customer}/{_pageNo}/{_pageSize}",
+            Endpoints.Customer.WithPagination(pageNo, pageSize),
             EnumHttpMethod.Get
         );
     }
@@ -73,7 +73,7 @@ public partial class P_Customer
 
     private async Task PageChanged(int i)
     {
-        _pageNo = i;
+        pageNo = i;
         await List();
     }
 }

@@ -4,8 +4,8 @@ namespace DotNet8.Pos.App.Components.Pages.Shop;
 
 public partial class P_Shop
 {
-    private int _pageNo = 1;
-    private int _pageSize = 10;
+    private int pageNo = 1;
+    private int pageSize = 10;
 
     private ShopListResponseModel? responseModel;
     protected override async void OnAfterRender(bool firstRender)
@@ -22,7 +22,7 @@ public partial class P_Shop
     private async Task List()
     {
         responseModel = await HttpClientService.ExecuteAsync<ShopListResponseModel>(
-            $"{Endpoints.Shop}/{_pageNo}/{_pageSize}",
+            Endpoints.Shop.WithPagination(pageNo, pageSize),
             EnumHttpMethod.Get
         );
     }
@@ -75,9 +75,9 @@ public partial class P_Shop
         }
     }
 
-    public async Task PageChanged(int i)
+    private async Task PageChanged(int i)
     {
-        _pageNo = i;
+        pageNo = i;
         await List();
     }
 }

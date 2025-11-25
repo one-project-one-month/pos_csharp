@@ -4,8 +4,8 @@ namespace DotNet8.Pos.App.Components.Pages.Tax;
 
 public partial class P_Tax
 {
-    public int _pageNo = 1;
-    public int _pageSize = 10;
+    private int pageNo = 1;
+    private int pageSize = 10;
 
     public TaxListResponseModel? responseModel;
 
@@ -23,7 +23,7 @@ public partial class P_Tax
     public async Task List()
     {
         responseModel = await HttpClientService.ExecuteAsync<TaxListResponseModel>(
-            $"{Endpoints.Tax}/{_pageNo}/{_pageSize}",
+            Endpoints.Tax.WithPagination(pageNo, pageSize),
             EnumHttpMethod.Get);
     }
 
@@ -71,9 +71,9 @@ public partial class P_Tax
             await List();
     }
 
-    public async Task PageChanged(int i)
+    private async Task PageChanged(int i)
     {
-        _pageNo = i;
+        pageNo = i;
         await List();
     }
 }
