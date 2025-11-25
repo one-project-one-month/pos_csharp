@@ -1,95 +1,179 @@
 ﻿@page "/sale-invoice"
 @using Newtonsoft.Json;
 
+<style>
+	.product-card {
+		border-radius: 12px;
+		overflow: hidden;
+	}
+
+		.product-card:hover {
+			transform: translateY(-4px);
+			box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+		}
+
+	.cart-item {
+		background: white;
+		border-radius: 8px;
+		margin-bottom: 8px;
+		border-left: 4px solid #594AE2;
+		border-bottom: 2px solid #d3d3d3;
+	}
+
+	.quantity-controls {
+		background: rgba(25, 118, 210, 0.1);
+		border-radius: 20px;
+		padding: 4px 8px;
+	}
+</style>
+
 @if (saleInvoiceFormType == EnumSaleInvoiceFormType.SaleProduct)
 {
-    @if (ResponseModel is not null)
-    {
-        <MudGrid>
-            <MudItem xs="9" Elevation="0">
-                <MudPaper Elevation="0">
-                    <div class="d-flex align-center">
-                        <MudTextField Immediate="true" @bind-Value="Search" Label="Search" Variant="MudBlazor.Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Default" OnAdornmentClick="SearchIcon" OnKeyDown="SearchIcon" />
-                    </div>
-                </MudPaper>
-                <MudPaper Elevation="0" Class="d-flex align-center justify-center mud-width-full mud-height-full">
-                    <MudGrid>
-                        @foreach (var item in lstProduct)
-                        {
-                            <MudItem xs="3">
-                                <MudPaper Class="py-4">
-                                    <div class="d-flex justify-center" Elevation="25">
-                                        <MudLink OnClick="@(()=>AddItem(item))" Underline="Underline.None">
-                                            <MudAvatar Color="Color.Success" Variant="MudBlazor.Variant.Outlined">
-                                                @item.ProductName.Substring(0, 1)
-                                            </MudAvatar>
-                                        </MudLink>
-                                    </div>
-                                    <MudText Align="Align.Center" Typo="Typo.body2">@item.Price</MudText>
-                                    <MudText Align="Align.Center" Typo="Typo.body2">@item.ProductName</MudText>
-                                </MudPaper>
-                            </MudItem>
-                        }
-                    </MudGrid>
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="3">
-                <MudPaper Class="d-flex align-center justify-center mud-width-full  py-8">
-                    <MudGrid>
-                        <MudItem xs="12">
-                            <MudPaper Elevation="0">
-                                <div class="d-flex align-center  ml-8 ">
-                                    <MudText Align="Align.Left">New Order  </MudText>
-                                </div>
-                            </MudPaper>
-                        </MudItem>
-                        @if (lstSaleInvoice is not null && lstSaleInvoice.Count > 0)
-                        {
-                            @foreach (var product in lstSaleInvoice)
-                            {
-                                if (product.Quantity > 0)
-                                {
-                                    <MudItem xs="12">
-                                        <MudPaper Elevation="0">
-                                            <div class="d-flex align-center  ml-8 ">
-                                                <MudAvatar Color="Color.Success" Variant="MudBlazor.Variant.Outlined">
-                                                    @product.ProductName.Substring(0, 1)
-                                                </MudAvatar>
-                                                <MudText Align="Align.Center" Class="pa-2">@product.ProductName</MudText>
-                                                <MudText Align="Align.Right">@product.Amount  </MudText>
-                                            </div>
-                                            <div>
-                                                <div class="d-flex align-center ml-16 ">
-                                                    <MudText Align="Align.Left">
-                                                        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(()=>IncreaseCount(product))"> </MudIconButton>
-                                                    </MudText>
-                                                    <MudText Align="Align.Center" Typo="Typo.body2">@product.Quantity</MudText>
-                                                    <MudText Align="Align.Right" Typo="Typo.body2">
-                                                        <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" OnClick="@(()=>DecreaseCount(product,1))"></MudIconButton>
-                                                    </MudText>
-                                                    <MudText>
-                                                        <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(()=>DecreaseCount(product,product.Quantity))"> </MudIconButton>
-                                                    </MudText>
-                                                </div>
-                                            </div>
-                                        </MudPaper>
-                                    </MudItem>
-                                }
-                            }
-                        }
-                    </MudGrid>
-                </MudPaper>
-                @if (lstSaleInvoice is not null && lstSaleInvoice.Sum(x => x.Amount) > 0)
-                {
-                    <MudAlert Severity="Severity.Info" Class="my-2" Variant="MudBlazor.Variant.Outlined">@lstSaleInvoice.Sum(x => x.Amount)</MudAlert>
-                }
-                <MudButton FullWidth="true" Class="my-2" Variant="MudBlazor.Variant.Filled" Color="Color.Success" OnClick="()=>Pay()">Pay</MudButton>
-            </MudItem>
-        </MudGrid>
-    }
+	@if (ResponseModel is not null)
+	{
+		<MudGrid>
+			<MudItem xs="9" Elevation="0">
+				<div class="d-flex align-center justify-space-between">
+					@* <MudText Typo="Typo.h5" Color="Color.Surface" Style="font-weight: 600;">
+                            <MudIcon Icon="@Icons.Material.Filled.Store" Class="mr-2" />
+                            Product Catalog
+                        </MudText> *@
+					@* <MudDivider/> *@
+					<MudTextField Immediate="true"
+								  @bind-Value="Search"
+								  Label="Search Products"
+								  Placeholder="Type to search..."
+								  Variant="MudBlazor.Variant.Outlined"
+								  Adornment="Adornment.End"
+								  AdornmentIcon="@Icons.Material.Filled.Search"
+								  AdornmentColor="Color.Surface"
+								  OnAdornmentClick="SearchIcon"
+								  OnKeyDown="SearchIcon"
+								  Style="min-width: 300px;" />
+				</div>
+				<MudPaper Elevation="0" Class="d-flex align-center justify-center mud-width-full mud-height-full">
+					<MudGrid Spacing="3">
+						@foreach (var item in lstProduct)
+						{
+							<MudItem xs="12" sm="6" md="4" lg="3">
+								<MudCard Class="product-card" Elevation="4" Style="cursor: pointer; transition: all 0.3s ease;" @onclick="@(() => AddItem(item))">
+									<MudCardContent Class="pa-4">
+										<div class="d-flex flex-column align-center">
+											<MudAvatar Size="Size.Large" Color="Color.Primary" Class="mb-3">
+												<MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Size="Size.Large" />
+											</MudAvatar>
+											<MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2" Style="font-weight: 600;">@item.ProductName</MudText>
+											<MudChip Color="Color.Success" Variant="MudBlazor.Variant.Filled" Size="Size.Small" Class="mb-2">
+												<MudIcon Icon="@Icons.Material.Filled.AttachMoney" Class="mr-1" />
+												@item.Price.ToString("C")
+											</MudChip>
+											<MudText Typo="Typo.body2" Color="Color.Info" Align="Align.Center">Click to add to cart</MudText>
+										</div>
+									</MudCardContent>
+									<MudCardActions Class="pa-2">
+										<MudButton Variant="MudBlazor.Variant.Text" Color="Color.Primary" FullWidth="true" Size="Size.Small">
+											<MudIcon Icon="@Icons.Material.Filled.AddShoppingCart" Class="mr-1" />
+											Add Item
+										</MudButton>
+									</MudCardActions>
+								</MudCard>
+							</MudItem>
+						}
+					</MudGrid>
+				</MudPaper>
+			</MudItem>
+			<MudItem xs="3">
+				<MudPaper Class="pa-4" Elevation="4" Style="border-radius: 12px; height: fit-content;">
+					<div class="d-flex align-center justify-space-between mb-4">
+						<MudText Typo="Typo.h6" Style="font-weight: 600;">
+							<MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Class="mr-2" />
+							Order Summary
+						</MudText>
+						@if (lstSaleInvoice is not null && lstSaleInvoice.Count > 0)
+						{
+							<MudChip Color="Color.Primary" Size="Size.Small">@lstSaleInvoice.Count item(s)</MudChip>
+						}
+					</div>
+
+					@if (lstSaleInvoice is not null && lstSaleInvoice.Count > 0)
+					{
+						<MudPaper Elevation="0" Class="mb-4" Style="max-height: 400px; overflow-y: auto;">
+							@foreach (var product in lstSaleInvoice)
+							{
+								if (product.Quantity > 0)
+								{
+									<div class="cart-item pa-3 mb-2">
+										<div class="d-flex align-center justify-space-between mb-2">
+											<div class="d-flex align-center">
+												<MudAvatar Color="Color.Primary" Size="Size.Small" Class="mr-2">
+													@product.ProductName.Substring(0, 1)
+												</MudAvatar>
+												<div>
+													<MudText Typo="Typo.body2" Style="font-weight: 500;">@product.ProductName</MudText>
+													<MudText Typo="Typo.caption" Color="Color.Info">@product.Price.ToString("C") each</MudText>
+												</div>
+											</div>
+											<MudText Typo="Typo.body1" Style="font-weight: 600;" Color="Color.Success">@product.Amount.ToString("C")</MudText>
+										</div>
+
+										<div class="d-flex align-center justify-space-between">
+											<div class="quantity-controls d-flex align-center">
+												<MudIconButton Icon="@Icons.Material.Filled.Remove"
+															   Size="Size.Small"
+															   Color="Color.Error"
+															   OnClick="@(()=>DecreaseCount(product,1))"
+															   Disabled="@(product.Quantity <= 1)" />
+												<MudText Typo="Typo.body1" Class="mx-3" Style="min-width: 30px; text-align: center;">@product.Quantity</MudText>
+												<MudIconButton Icon="@Icons.Material.Filled.Add"
+															   Size="Size.Small"
+															   Color="Color.Success"
+															   OnClick="@(()=>IncreaseCount(product))" />
+											</div>
+											<MudIconButton Icon="@Icons.Material.Filled.Delete"
+														   Size="Size.Small"
+														   Color="Color.Error"
+														   Variant="MudBlazor.Variant.Text"
+														   OnClick="@(()=>DecreaseCount(product,product.Quantity))" />
+										</div>
+									</div>
+								}
+							}
+						</MudPaper>
+
+						<MudDivider Class="my-3" />
+
+						<div class="d-flex align-center justify-space-between mb-3">
+							<MudText Typo="Typo.h6" Style="font-weight: 600;">Total:</MudText>
+							<MudText Typo="Typo.h5" Color="Color.Success" Style="font-weight: 700;">@lstSaleInvoice.Sum(x => x.Amount).ToString("C")</MudText>
+						</div>
+					}
+					else
+					{
+						<div class="d-flex flex-column align-center justify-center py-8">
+							<MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Size="Size.Large" Color="Color.Default" />
+							<MudText Typo="Typo.body1" Color="Color.Default" Class="mt-2">Your cart is empty</MudText>
+							<MudText Typo="Typo.caption" Color="Color.Default">Select products to get started</MudText>
+						</div>
+					}
+					@if (lstSaleInvoice is not null && lstSaleInvoice.Sum(x => x.Amount) > 0)
+					{
+						<MudButton FullWidth="true"
+								   Class="mt-3"
+								   Variant="MudBlazor.Variant.Filled"
+								   Color="Color.Success"
+								   Size="Size.Large"
+								   OnClick="()=>Pay()"
+								   StartIcon="@Icons.Material.Filled.Payment">
+							Proceed to Checkout
+						</MudButton>
+					}
+				</MudPaper>
+			</MudItem>
+		</MudGrid>
+	}
 }
 else if (saleInvoiceFormType == EnumSaleInvoiceFormType.Checkout)
 {
-    <P_CheckOut SaleInvoiceDetails="lstSaleInvoice" />
+	<P_CheckOut SaleInvoiceDetails="lstSaleInvoice" />
 }
 

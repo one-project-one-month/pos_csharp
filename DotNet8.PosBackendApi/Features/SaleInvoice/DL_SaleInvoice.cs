@@ -55,6 +55,7 @@ public class DL_SaleInvoice
         {
             var query = _context
                 .TblSaleInvoices
+                .OrderByDescending(x => x.SaleInvoiceId)
                 .AsNoTracking();
 
             // Apply search filter if provided
@@ -150,7 +151,7 @@ public class DL_SaleInvoice
             responseModel.MessageResponse = new MessageResponseModel(false, ex);
         }
 
-        result:
+    result:
         return responseModel;
     }
 
@@ -196,7 +197,7 @@ public class DL_SaleInvoice
             responseModel.MessageResponse = new MessageResponseModel(false, ex);
         }
 
-        result:
+    result:
         return responseModel;
     }
 
@@ -277,8 +278,8 @@ public class DL_SaleInvoice
             if (!string.IsNullOrEmpty(requestModel.CustomerCode))
                 item.CustomerCode = requestModel.CustomerCode;
 
-            if(!string.IsNullOrEmpty(requestModel.CustomerAccountNo))
-                item.CustomerAccountNo = requestModel.CustomerAccountNo;    
+            if (!string.IsNullOrEmpty(requestModel.CustomerAccountNo))
+                item.CustomerAccountNo = requestModel.CustomerAccountNo;
 
             if (!string.IsNullOrEmpty(requestModel.VoucherNo))
                 item.VoucherNo = requestModel.VoucherNo;
@@ -363,7 +364,7 @@ public class DL_SaleInvoice
             responseModel = new MessageResponseModel(false, ex);
         }
 
-        result:
+    result:
         return responseModel;
     }
 

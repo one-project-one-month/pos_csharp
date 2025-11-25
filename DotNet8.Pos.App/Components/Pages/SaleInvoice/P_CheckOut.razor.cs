@@ -11,9 +11,25 @@ public partial class P_CheckOut
 
     private EnumSaleInvoiceFormType saleInvoiceFormType = EnumSaleInvoiceFormType.Checkout;
 
+    private string selectedPaymentMethod = "KBZPay";
+
     protected override void OnParametersSet()
     {
         reqModel.PaymentAmount = SaleInvoiceDetails.Sum(x => x.Amount);
+        CalculateChange();
+    }
+
+    private void CalculateChange()
+    {
+        // Change is a computed property (ReceiveAmount - PaymentAmount)
+        // No need to set it, just refresh the UI
+        StateHasChanged();
+    }
+
+    private void OnReceiveAmountChanged(decimal? value)
+    {
+        reqModel.ReceiveAmount = value ?? 0;
+        CalculateChange();
     }
     private void IncreaseCount(SaleInvoiceDetailModel requestModel)
     {
@@ -38,7 +54,7 @@ public partial class P_CheckOut
         reqModel.SaleInvoiceDateTime = DateTime.Now;
         reqModel.TotalAmount = SaleInvoiceDetails.Sum(x => x.Amount);
         reqModel.StaffCode = "S_001";
-        reqModel.PaymentType = "KBZPay";
+        reqModel.PaymentType = selectedPaymentMethod;
 
         var response = await HttpClientService.ExecuteAsync<SaleInvoiceResponseModel>(
             Endpoints.SaleInvoice,

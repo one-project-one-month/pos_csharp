@@ -84,4 +84,24 @@ public partial class P_SaleInvoiceList
             StateHasChanged();
         }
     }
+
+    private void PrintInvoice(string voucherNo)
+    {
+        // Navigate to receipt page for printing
+        Nav.NavigateTo($"/sale-receipt/{voucherNo}");
+        InjectService.ShowMessage("Redirecting to printable receipt...", EnumResponseType.Information);
+    }
+
+    private async Task ViewDetails(string voucherNo)
+    {
+        // Same as Popup for now - shows detail dialog
+        await Popup(voucherNo);
+    }
+
+    private void DownloadInvoice(string voucherNo)
+    {
+        // Navigate to receipt and suggest printing/downloading
+        Nav.NavigateTo($"/sale-receipt/{voucherNo}");
+        InjectService.ShowMessage("Use browser print function to download as PDF", EnumResponseType.Information);
+    }
 }

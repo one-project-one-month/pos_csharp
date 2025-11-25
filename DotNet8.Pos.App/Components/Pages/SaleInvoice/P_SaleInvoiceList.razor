@@ -1,70 +1,213 @@
 ﻿@page "/sale-invoice-list"
 
-<MudText Typo="Typo.h6">
-    <MudIconButton Icon="@Icons.Material.Filled.Add" aria-label="Create" OnClick="Create"></MudIconButton>
-    Sale Invoice
-</MudText>
+<style>
+	.invoice-header {
+		background: #667eea;
+		color: white;
+		border-radius: 12px;
+		padding: 20px;
+		margin-bottom: 24px;
+	}
 
-<MudGrid>
-    <MudItem xs="12" sm="6" md="4">
-        <MudTextField @bind-Value="searchText"
-                      Label="Search"
-                      Placeholder="Search by voucher or staff code..."
-                      Variant="MudBlazor.Variant.Outlined"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search"
-                      Immediate="true"
-                      OnKeyUp="HandleSearchKeyUp" />
-    </MudItem>
-    <MudItem xs="12" sm="6" md="4">
-        <MudButton Variant="MudBlazor.Variant.Filled"
-                   Color="Color.Primary"
-                   StartIcon="@Icons.Material.Filled.Search"
-                   OnClick="Search"
-                   Class="mt-1">
-            Search
-        </MudButton>
-        <MudButton Variant="MudBlazor.Variant.Outlined"
-                   Color="Color.Secondary"
-                   StartIcon="@Icons.Material.Filled.Clear"
-                   OnClick="ClearSearch"
-                   Class="mt-1 ml-2">
-            Clear
-        </MudButton>
-    </MudItem>
-</MudGrid>
+	.search-section {
+		background: white;
+		border-radius: 12px;
+		padding: 20px;
+		margin-bottom: 24px;
+		border-left: 4px solid #667EEA;
+	}
+
+	.invoice-table {
+		border-radius: 12px;
+		overflow: hidden;
+		box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+	}
+
+	.table-header {
+		background: white;
+		color: white;
+	}
+
+	.invoice-row:hover {
+		background: #f8f9fa;
+		transform: scale(1.01);
+		transition: all 0.2s ease;
+	}
+
+	.action-buttons {
+		display: flex;
+		gap: 8px;
+	}
+
+	.status-chip {
+		font-weight: 600;
+	}
+</style>
+
+<div class="invoice-header">
+	<div class="d-flex align-center justify-space-between">
+		<div class="d-flex align-center">
+			<MudIcon Icon="@Icons.Material.Filled.ReceiptLong" Size="Size.Large" Class="mr-3" />
+			<div>
+				<MudText Typo="Typo.h4" Style="font-weight: 700;">Sale Invoices</MudText>
+				<MudText Typo="Typo.body2" Style="opacity: 0.9;">Manage and track all sales transactions</MudText>
+			</div>
+		</div>
+		<MudButton Variant="MudBlazor.Variant.Filled"
+				   Color="Color.Success"
+				   Size="Size.Large"
+				   StartIcon="@Icons.Material.Filled.Add"
+				   OnClick="Create">
+			New Sale
+		</MudButton>
+	</div>
+</div>
+
+<div class="search-section">
+	<MudGrid>
+		<MudItem xs="12" sm="8" md="6">
+			<MudTextField @bind-Value="searchText"
+						  Label="Search Invoices"
+						  Placeholder="Search by voucher number or staff code..."
+						  Variant="MudBlazor.Variant.Outlined"
+						  Adornment="Adornment.Start"
+						  AdornmentIcon="@Icons.Material.Filled.Search"
+						  Immediate="true"
+						  OnKeyUp="HandleSearchKeyUp"
+						  FullWidth="true" />
+		</MudItem>
+		<MudItem xs="12" sm="4" md="6" Class="d-flex align-end">
+			<MudButton Variant="MudBlazor.Variant.Filled"
+					   Color="Color.Primary"
+					   StartIcon="@Icons.Material.Filled.Search"
+					   OnClick="Search"
+					   Class="mr-2">
+				Search
+			</MudButton>
+			<MudButton Variant="MudBlazor.Variant.Outlined"
+					   Color="Color.Secondary"
+					   StartIcon="@Icons.Material.Filled.Clear"
+					   OnClick="ClearSearch">
+				Clear
+			</MudButton>
+		</MudItem>
+	</MudGrid>
+</div>
 
 @if (ResponseModel is not null)
 {
-int count = 0;
-    <MudSimpleTable Style="overflow-x: auto;">
-        <thead>
-            <tr>
-                <th>No.</th>
-                <th>Date</th>
-                <th>Voucher No</th>
-                <th>Staff Code</th>
-                <th>Total Amount</th>
-                <th>Discount</th>
-                <th>Tax</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in ResponseModel.Data.SaleInvoice)
-        {
-            <tr>
-                    <td>@(++count + ((pageNo - 1) * pageSize))</td>
-                    <td>@item.SaleInvoiceDateTime.ToString("dd-MM-yyyy")</td>
-                    <td>@item.VoucherNo</td>
-                    <td>@item.StaffCode</td>
-                    <td>@item.TotalAmount</td>
-                    <td>@item.Discount</td>
-                    <td>@item.Tax</td>
-                    <td><MudIconButton Icon="@Icons.Material.Filled.Settings" Variant="MudBlazor.Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(()=>Popup(item.VoucherNo))"/></td>
-                </tr>
-        }
-        </tbody>
-    </MudSimpleTable>
-    <MudPagination SelectedChanged="PageChanged" Count="@ResponseModel.PageSetting.PageCount" Class="pa-4" />
+	int count = 0;
+	<MudCard Elevation="4" Class="invoice-table">
+		<MudCardContent Class="pa-0">
+			<MudTable Items="@ResponseModel.Data.SaleInvoice"
+					  Dense="true"
+					  Hover="true"
+					  Class="invoice-table">
+				<HeaderContent>
+					<MudTh Class="table-header">#</MudTh>
+					<MudTh Class="table-header">Date</MudTh>
+					<MudTh Class="table-header">Voucher No</MudTh>
+					<MudTh Class="table-header">Staff</MudTh>
+					<MudTh Class="table-header">Total Amount</MudTh>
+					<MudTh Class="table-header">Discount</MudTh>
+					<MudTh Class="table-header">Tax</MudTh>
+					<MudTh Class="table-header">Actions</MudTh>
+				</HeaderContent>
+				<RowTemplate>
+					<MudTd>@(++count + ((pageNo - 1) * pageSize))</MudTd>
+					<MudTd>
+						<div class="d-flex flex-column">
+							<MudText Typo="Typo.body2" Style="font-weight: 500;">@context.SaleInvoiceDateTime.ToString("dd/MM/yyyy")</MudText>
+							<MudText Typo="Typo.caption" Color="Color.Info">@context.SaleInvoiceDateTime.ToString("hh:mm tt")</MudText>
+						</div>
+					</MudTd>
+					<MudTd>
+						<MudChip Color="Color.Primary" Variant="MudBlazor.Variant.Outlined" Size="Size.Small" Class="status-chip">
+							@context.VoucherNo
+						</MudChip>
+					</MudTd>
+					<MudTd>
+						<div class="d-flex align-center">
+							<MudAvatar Size="Size.Small" Color="Color.Secondary" Class="mr-2">
+								@context.StaffCode.Substring(0, 1)
+							</MudAvatar>
+							<MudText Typo="Typo.body2">@context.StaffCode</MudText>
+						</div>
+					</MudTd>
+					<MudTd>
+						<MudText Typo="Typo.body1" Style="font-weight: 600; color: #1976d2;">@context.TotalAmount.ToString("n0") MMK</MudText>
+					</MudTd>
+					<MudTd>
+						@if (context.Discount > 0)
+						{
+							<MudChip Color="Color.Success" Size="Size.Small" Variant="MudBlazor.Variant.Filled">
+								-@context.Discount.ToString("n0") MMK
+							</MudChip>
+						}
+						else
+						{
+							<MudText Typo="Typo.caption" Color="Color.Default">-</MudText>
+						}
+					</MudTd>
+					<MudTd>
+						@if (context.Tax > 0)
+						{
+							<MudChip Color="Color.Warning" Size="Size.Small" Variant="MudBlazor.Variant.Filled">
+								@context.Tax.ToString("n0") MMK
+							</MudChip>
+						}
+						else
+						{
+							<MudText Typo="Typo.caption" Color="Color.Default">-</MudText>
+						}
+					</MudTd>
+					<MudTd>
+						<div class="action-buttons">
+							<MudTooltip Text="View Receipt">
+								<MudIconButton Icon="@Icons.Material.Filled.Receipt"
+											   Variant="MudBlazor.Variant.Filled"
+											   Color="Color.Success"
+											   Size="Size.Small"
+											   OnClick="@(()=>Popup(context.VoucherNo))" />
+							</MudTooltip>
+							<MudTooltip Text="Print Invoice">
+								<MudIconButton Icon="@Icons.Material.Filled.Print"
+											   Variant="MudBlazor.Variant.Outlined"
+											   Color="Color.Info"
+											   Size="Size.Small"
+											   OnClick="@(()=>PrintInvoice(context.VoucherNo))" />
+							</MudTooltip>
+							<MudMenu Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" Color="Color.Default">
+								<MudMenuItem OnClick="@(() => ViewDetails(context.VoucherNo))">
+									<MudIcon Icon="@Icons.Material.Filled.Visibility" Class="mr-2" />
+									View Details
+								</MudMenuItem>
+								<MudMenuItem OnClick="@(() => DownloadInvoice(context.VoucherNo))">
+									<MudIcon Icon="@Icons.Material.Filled.Download" Class="mr-2" />
+									Download
+								</MudMenuItem>
+							</MudMenu>
+						</div>
+					</MudTd>
+				</RowTemplate>
+			</MudTable>
+		</MudCardContent>
+	</MudCard>
+
+	<div class="d-flex justify-center mt-4">
+		<MudPagination SelectedChanged="PageChanged"
+					   Count="@ResponseModel.PageSetting.PageCount"
+					   Size="Size.Large"
+					   Color="Color.Primary"
+					   Variant="MudBlazor.Variant.Outlined" />
+	</div>
+
+	<div class="d-flex justify-space-between align-center mt-4">
+		<MudText Typo="Typo.body2" Color="Color.Default">
+			Showing @((pageNo - 1) * pageSize + 1) to @(Math.Min(pageNo * pageSize, ResponseModel.Data.SaleInvoice.Count)) of @ResponseModel.Data.SaleInvoice.Count entries
+		</MudText>
+		<MudChip Color="Color.Info" Variant="MudBlazor.Variant.Filled">
+			Total: @ResponseModel.Data.SaleInvoice.Sum(x => x.TotalAmount).ToString("n0") MMK
+		</MudChip>
+	</div>
 }

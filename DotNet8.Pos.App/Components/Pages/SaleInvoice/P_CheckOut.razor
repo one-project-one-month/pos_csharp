@@ -1,75 +1,211 @@
 ﻿@page "/checkout"
 
+<style>
+.checkout-header {
+    background: #667eea;
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.checkout-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 4px solid #1976d2;
+}
+
+.payment-section {
+    background: #f5576c;
+    border-radius: 12px;
+    color: white;
+}
+
+.payment-methods {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.total-summary {
+    background: #4facfe;
+    border-radius: 12px;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+</style>
+
 @if (saleInvoiceFormType == EnumSaleInvoiceFormType.Checkout)
 {
-    <MudGrid>
-        <MudItem xs="6">
-            <MudPaper Class="d-flex align-center justify-center mud-width-full  py-8">
-                <MudGrid>
-                    <MudItem xs="12">
-                        <MudText Align="Align.Center"> Checkout </MudText>
-                    </MudItem>
+    <MudGrid Spacing="4">
+        <MudItem xs="12">
+            <div class="checkout-header pa-4 mb-4">
+                <div class="d-flex align-center justify-space-between">
+                    <div>
+                        <MudText Typo="Typo.h4" Style="font-weight: 600;">
+                            <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Class="mr-2" />
+                            Checkout
+                        </MudText>
+                        <MudText Typo="Typo.body2" Style="opacity: 0.9;">Review your order and complete payment</MudText>
+                    </div>
+                    <MudChip Color="Color.Success" Variant="MudBlazor.Variant.Filled" Size="Size.Medium">
+                        @SaleInvoiceDetails.Count item(s)
+                    </MudChip>
+                </div>
+            </div>
+        </MudItem>
+
+        <MudItem xs="12" md="7">
+            <MudCard Elevation="4" Class="pa-4">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6" Style="font-weight: 600;">
+                            <MudIcon Icon="@Icons.Material.Filled.List" Class="mr-2" />
+                            Order Items
+                        </MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
                     @if (SaleInvoiceDetails.Count > 0)
                     {
-                        @foreach (var product in SaleInvoiceDetails)
-                        {
-                            if (product.Quantity > 0)
+                        <MudPaper Style="max-height: 400px; overflow-y: auto;">
+                            @foreach (var product in SaleInvoiceDetails)
                             {
-                                <MudItem xs="12">
-                                    <MudPaper Elevation="0">
-                                        <div class="d-flex align-center  ml-8 ">
-                                            <MudAvatar Color="Color.Success" Variant="MudBlazor.Variant.Outlined">
-                                                @product.ProductName.Substring(0, 1)
-                                            </MudAvatar>
-                                            <MudText Align="Align.Center" Class="pa-2">@product.ProductName</MudText>
-                                            <MudText Align="Align.Right">@product.Amount  </MudText>
+                                if (product.Quantity > 0)
+                                {
+                                    <div class="checkout-item pa-3 mb-2">
+                                        <div class="d-flex align-center justify-space-between mb-2">
+                                            <div class="d-flex align-center">
+                                                <MudAvatar Color="Color.Primary" Size="Size.Medium" Class="mr-3">
+                                                    @product.ProductName.Substring(0, 1)
+                                                </MudAvatar>
+                                                <div>
+                                                    <MudText Typo="Typo.body1" Style="font-weight: 500;">@product.ProductName</MudText>
+                                                    <MudText Typo="Typo.caption" Color="Color.Info">@product.Price.ToString("C") × @product.Quantity</MudText>
+                                                </div>
+                                            </div>
+                                            <MudText Typo="Typo.h6" Style="font-weight: 600;" Color="Color.Success">@product.Amount.ToString("C")</MudText>
                                         </div>
-                                        <div class="d-flex align-center ml-16 ">
-                                            <MudText Align="Align.Left">
-                                                <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(()=>IncreaseCount(product))"> </MudIconButton>
-                                            </MudText>
-                                            <MudText Align="Align.Center" Typo="Typo.body2">@product.Quantity</MudText>
-                                            <MudText Align="Align.Right" Typo="Typo.body2">
-                                                <MudIconButton Icon="@Icons.Material.Filled.RemoveCircle" OnClick="@(()=>DecreaseCount(product,1))"></MudIconButton>
-                                            </MudText>
-                                            <MudText>
-                                                <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(()=>DecreaseCount(product,product.Quantity))"> </MudIconButton>
-                                            </MudText>
+
+                                        <div class="d-flex align-center justify-end">
+                                            <MudIconButton Icon="@Icons.Material.Filled.Remove" Size="Size.Small" Color="Color.Error" OnClick="@(()=>DecreaseCount(product,1))" Disabled="@(product.Quantity <= 1)" />
+                                            <MudText Typo="Typo.body2" Class="mx-2">Qty: @product.Quantity</MudText>
+                                            <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Color="Color.Success" OnClick="@(()=>IncreaseCount(product))" />
+                                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" Variant="MudBlazor.Variant.Text" OnClick="@(()=>DecreaseCount(product,product.Quantity))" Class="ml-2" />
                                         </div>
-                                    </MudPaper>
-                                </MudItem>
+                                    </div>
+                                }
                             }
-                        }
-                        <MudItem xs="12">
-                            <MudAlert Severity="Severity.Info" Class="my-2" Variant="MudBlazor.Variant.Outlined">Total Amount : @SaleInvoiceDetails.Sum(x => x.Amount)</MudAlert>
-                        </MudItem>
+                        </MudPaper>
                     }
-                </MudGrid>
-            </MudPaper>
+                </MudCardContent>
+            </MudCard>
         </MudItem>
 
-        <MudItem xs="6" Elevation="0">
-            <MudPaper Class="d-flex align-center justify-center mud-width-full  py-8">
-                <MudGrid>
-                    <MudItem xs="12" class="ml-5 mr-5">
-                        <MudText Align="Align.Center"> Payment </MudText>
-                        <div class="d-flex justify-center">
-                            <MudImage ObjectPosition="ObjectPosition.Center" Src="kbzpay.jpg" Elevation="25" Class="rounded-lg" Width="75" />
+        <MudItem xs="12" md="5">
+            <MudCard Elevation="4">
+                <div class="payment-section">
+                    <div class="pa-4">
+                        <MudText Typo="Typo.h6" Style="font-weight: 600;" Class="mb-3">
+                            <MudIcon Icon="@Icons.Material.Filled.Payment" Class="mr-2" />
+                            Payment Details
+                        </MudText>
+
+                        <div class="payment-methods mb-4">
+                            <MudText Typo="Typo.body2" Style="font-weight: 500;" Class="mb-3">Payment Method</MudText>
+                            <MudRadioGroup @bind-Value="@selectedPaymentMethod" Class="d-flex flex-column">
+                                <MudRadio Value="@("KBZPay")" Color="Color.Success">
+                                    <div class="d-flex align-center">
+                                        <MudIcon Icon="@Icons.Material.Filled.AccountBalanceWallet" Class="mr-2" />
+                                        KBZ Pay
+                                    </div>
+                                </MudRadio>
+                                <MudRadio Value="@("Cash")" Color="Color.Success">
+                                    <div class="d-flex align-center">
+                                        <MudIcon Icon="@Icons.Material.Filled.Money" Class="mr-2" />
+                                        Cash
+                                    </div>
+                                </MudRadio>
+                                <MudRadio Value="@("Card")" Color="Color.Success">
+                                    <div class="d-flex align-center">
+                                        <MudIcon Icon="@Icons.Material.Filled.CreditCard" Class="mr-2" />
+                                        Credit Card
+                                    </div>
+                                </MudRadio>
+                            </MudRadioGroup>
                         </div>
-                        <MudTextField @bind-Value="@reqModel.CustomerAccountNo" Label="Customer Account No" Variant="MudBlazor.Variant.Text"></MudTextField>
-                        <MudTextField @bind-Value="@reqModel.PaymentAmount" Label="Payment Amount" Variant="MudBlazor.Variant.Text"></MudTextField>
-                        <MudTextField @bind-Value="@reqModel.ReceiveAmount" Label="Receive Amount" Variant="MudBlazor.Variant.Text"></MudTextField>
-                        <MudTextField Value="@reqModel.Change" Label="Change" Variant="MudBlazor.Variant.Text" ReadOnly></MudTextField>
-                    </MudItem>
-                    <MudItem xs="12" Class="d-flex align-center justify-center">
-                        <MudButton Variant="MudBlazor.Variant.Outlined" Color="Color.Primary" OnClick="()=>Pay()">Pay</MudButton>
-                    </MudItem>
-                </MudGrid>
-            </MudPaper>
-        </MudItem>
-        <MudItem>
-            <MudButton Class="my-4" Variant="MudBlazor.Variant.Outlined" Color="Color.Warning" OnClick="()=>Back()">Back</MudButton>
 
+                        @if (selectedPaymentMethod == "KBZPay")
+                        {
+                            <div class="mb-4">
+                                <MudTextField @bind-Value="@reqModel.CustomerAccountNo"
+                                              Label="Customer Account No"
+                                              Variant="MudBlazor.Variant.Outlined"
+                                              Adornment="Adornment.Start"
+                                              AdornmentIcon="@Icons.Material.Filled.AccountCircle"
+                                              FullWidth="true" />
+                            </div>
+                        }
+
+                        <div class="mb-4">
+                            <MudTextField @bind-Value="@reqModel.PaymentAmount"
+                                          Label="Payment Amount"
+                                          Variant="MudBlazor.Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.AttachMoney"
+                                          FullWidth="true"
+                                          ReadOnly="true" />
+                        </div>
+
+                        <div class="mb-4">
+                            <MudTextField T="decimal?" Value="@reqModel.ReceiveAmount"
+                                          Label="Receive Amount"
+                                          Variant="MudBlazor.Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.TrendingUp"
+                                          FullWidth="true"
+                                          Immediate="true"
+                                          ValueChanged="OnReceiveAmountChanged" />
+                        </div>
+
+                        <div class="mb-4">
+                            <MudTextField Value="@reqModel.Change"
+                                          Label="Change"
+                                          Variant="MudBlazor.Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.TrendingDown"
+                                          FullWidth="true"
+                                          ReadOnly="true" />
+                        </div>
+
+                        <MudButton Variant="MudBlazor.Variant.Filled"
+                                   Color="Color.Success"
+                                   FullWidth="true"
+                                   Size="Size.Large"
+                                   OnClick="()=>Pay()"
+                                   StartIcon="@Icons.Material.Filled.CheckCircle"
+                                   Class="mt-3">
+                            Complete Payment
+                        </MudButton>
+                    </div>
+                </div>
+            </MudCard>
+
+            <MudCard Elevation="4" Class="mt-4">
+                <div class="total-summary">
+                    <MudText Typo="Typo.body2" Style="opacity: 0.9;">Total Amount</MudText>
+                    <MudText Typo="Typo.h3" Style="font-weight: 700;">@SaleInvoiceDetails.Sum(x => x.Amount).ToString("C")</MudText>
+                </div>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" Class="d-flex justify-center mt-4">
+            <MudButton Variant="MudBlazor.Variant.Outlined"
+                       Color="Color.Warning"
+                       Size="Size.Large"
+                       OnClick="()=>Back()"
+                       StartIcon="@Icons.Material.Filled.ArrowBack">
+                Back to Shopping
+            </MudButton>
         </MudItem>
     </MudGrid>
 }

@@ -1,75 +1,177 @@
 ﻿@page "/sale-receipt/{VoucherNo?}"
 @layout EmptyLayout
 
-<MudGrid>
-    @if (ResponseModel is not null)
+<style>
+.receipt-container {
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    max-width: 400px;
+    margin: 20px auto;
+}
+
+.receipt-header {
+    background: #667eea;
+    color: white;
+    padding: 24px;
+    text-align: center;
+}
+
+.receipt-body {
+    padding: 24px;
+}
+
+.receipt-item {
+    border-bottom: 1px dashed #e0e0e0;
+    padding: 12px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.receipt-total {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+    border-left: 4px solid #1976d2;
+}
+
+.receipt-footer {
+    background: #f8f9fa;
+    padding: 20px 24px;
+    text-align: center;
+    border-top: 1px solid #e0e0e0;
+}
+
+.receipt-divider {
+    border-top: 2px dashed #1976d2;
+    margin: 16px 0;
+}
+
+.store-info {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.thank-you {
+    background: #4facfe;
+    color: white;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 20px 0;
+    text-align: center;
+}
+</style>
+
+@if (ResponseModel is not null)
 {
-    <MudItem xs="3"></MudItem>
-    <MudItem xs="6">
-            <MudCard>
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Style="color:#A9B0BB">Invoice No</MudText>
-                        <MudText># @VoucherNo</MudText>
-                    </CardHeaderContent>
-                    <CardHeaderActions>
-                        <MudText Style="color:#A9B0BB">Payment Date</MudText>
-                        <MudText>@ResponseModel.SaleInvoiceDateTime.ToString("dd-MM-yyyy hh:mm:ss tt")</MudText>
-                    </CardHeaderActions>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudSimpleTable Elevation="0">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>Description</th>
-                                <th>Quantity</th>
-                                <th>Price</th>
-                                <th>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in ResponseModel.SaleInvoiceDetails)
-                        {
-                            <tr>
-                                    <td>@(++count)</td>
-                                    <td>@item.ProductName</td>
-                                    <td align="right">@item.Quantity</td>
-                                    <td align="right">@item.Price</td>
-                                    <td align="right">@item.Amount</td>
-                                </tr>
-                        }
-                            <tr class="border-dashed">
-                                <td colspan="4">Total Amount </td>
-                                <td colspan="1">@ResponseModel.TotalAmount</td>
-                            </tr>
-                            <tr>
-                                <td colspan="4">Discount  </td>
-                                <td colspan="1">@ResponseModel.Discount</td>
-                            </tr>
-                            <tr>
-                                <td colspan="4">Tax  </td>
-                                <td colspan="1">@ResponseModel.Tax</td>
-                            </tr>
-                            <tr>
-                                <td colspan="4">Cash </td>
-                                <td colspan="1">@ResponseModel.ReceiveAmount</td>
-                            </tr>
-                            <tr>
-                                <td colspan="4">Change </td>
-                                <td colspan="1">@ResponseModel.Change</td>
-                            </tr>
-                        </tbody>
-                    </MudSimpleTable>
-                </MudCardContent>
-                <MudCardActions Class="pa-6">
-                    <MudButton Class="my-4 " Variant="MudBlazor.Variant.Outlined" Color="Color.Success" Href="/sale-invoice-list">Back</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </MudItem>
+    <div class="receipt-container">
+        <div class="receipt-header">
+            <MudIcon Icon="@Icons.Material.Filled.Receipt" Size="Size.Large" />
+            <MudText Typo="Typo.h4" Style="font-weight: 700; margin-top: 8px;">RECEIPT</MudText>
+            <MudText Typo="Typo.body2" Style="opacity: 0.9;">Invoice # @VoucherNo</MudText>
+        </div>
+
+        <div class="receipt-body">
+            <div class="store-info">
+                <MudText Typo="Typo.h6" Style="font-weight: 600;">DotNet8 POS System</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Info">Your trusted shopping partner</MudText>
+            </div>
+
+            <div class="mb-4">
+                <div class="d-flex justify-space-between mb-2">
+                    <MudText Typo="Typo.body2" Color="Color.Default">Date & Time:</MudText>
+                    <MudText Typo="Typo.body2" Style="font-weight: 500;">@ResponseModel.SaleInvoiceDateTime.ToString("dd/MM/yyyy hh:mm tt")</MudText>
+                </div>
+                <div class="d-flex justify-space-between">
+                    <MudText Typo="Typo.body2" Color="Color.Default">Staff Code:</MudText>
+                    <MudText Typo="Typo.body2" Style="font-weight: 500;">@ResponseModel.StaffCode</MudText>
+                </div>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            @foreach (var item in ResponseModel.SaleInvoiceDetails)
+            {
+                <div class="receipt-item">
+                    <div>
+                        <MudText Typo="Typo.body1" Style="font-weight: 500;">@item.ProductName</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Info">@item.Quantity × @item.Price.ToString("C")</MudText>
+                    </div>
+                    <MudText Typo="Typo.body1" Style="font-weight: 600;">@item.Amount.ToString("C")</MudText>
+                </div>
+            }
+
+            <div class="receipt-divider"></div>
+
+            <div class="receipt-total">
+                <div class="d-flex justify-space-between mb-2">
+                    <MudText Typo="Typo.body2">Subtotal:</MudText>
+                    <MudText Typo="Typo.body2">@ResponseModel.TotalAmount.ToString("C")</MudText>
+                </div>
+                @if (ResponseModel.Discount > 0)
+                {
+                    <div class="d-flex justify-space-between mb-2">
+                        <MudText Typo="Typo.body2">Discount:</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Success">-@ResponseModel.Discount.ToString("C")</MudText>
+                    </div>
+                }
+                @if (ResponseModel.Tax > 0)
+                {
+                    <div class="d-flex justify-space-between mb-2">
+                        <MudText Typo="Typo.body2">Tax:</MudText>
+                        <MudText Typo="Typo.body2">@ResponseModel.Tax.ToString("C")</MudText>
+                    </div>
+                }
+                <div class="receipt-divider"></div>
+                <div class="d-flex justify-space-between">
+                    <MudText Typo="Typo.h6" Style="font-weight: 700;">TOTAL:</MudText>
+                    <MudText Typo="Typo.h6" Style="font-weight: 700; color: #1976d2;">@((ResponseModel.TotalAmount + ResponseModel.Tax - ResponseModel.Discount).ToString("C"))</MudText>
+                </div>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="mb-4">
+                <div class="d-flex justify-space-between mb-2">
+                    <MudText Typo="Typo.body2">Received:</MudText>
+                    <MudText Typo="Typo.body2">@ResponseModel.ReceiveAmount?.ToString("n0")</MudText>
+                </div>
+                <div class="d-flex justify-space-between">
+                    <MudText Typo="Typo.body2">Change:</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Success">@ResponseModel.Change?.ToString("n0")</MudText>
+                </div>
+            </div>
+        </div>
+
+        <div class="thank-you">
+            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Large" Class="mb-2" />
+            <MudText Typo="Typo.h6" Style="font-weight: 600;">Thank You!</MudText>
+            <MudText Typo="Typo.caption">For shopping with us</MudText>
+        </div>
+
+        <div class="receipt-footer">
+            <MudButton Variant="MudBlazor.Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Href="/sale-invoice-list"
+                       StartIcon="@Icons.Material.Filled.ArrowBack">
+                Back to Sales
+            </MudButton>
+        </div>
+    </div>
 }
 else
 {
-    <MudText>No Invoice Data Available</MudText>
+    <div class="receipt-container">
+        <div class="receipt-body" style="text-align: center; padding: 40px;">
+            <MudIcon Icon="@Icons.Material.Filled.Error" Size="Size.Large" Color="Color.Error" />
+            <MudText Typo="Typo.h6" Class="mt-3">No Invoice Data Available</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Default">Unable to load receipt information</MudText>
+        </div>
+    </div>
 }
-</MudGrid>
