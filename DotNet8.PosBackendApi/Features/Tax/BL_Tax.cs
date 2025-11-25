@@ -17,9 +17,9 @@ public class BL_Tax
         return await _dL_Tax.GetTaxList();
     }
 
-    public async Task<TaxListResponseModel> GetTaxList(int pageNo, int pageSize)
+    public async Task<TaxListResponseModel> GetTaxList(int pageNo, int pageSize, string? search = null)
     {
-        return await _dL_Tax.GetTaxList(pageNo, pageSize);
+        return await _dL_Tax.GetTaxList(pageNo, pageSize, search);
     }
 
     public async Task<TaxResponseModel> GetTaxById(int id)

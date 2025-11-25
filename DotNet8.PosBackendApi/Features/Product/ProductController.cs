@@ -134,11 +134,11 @@ public class ProductController : BaseController
     }
 
     [HttpGet("{pageNo}/{pageSize}")]
-    public async Task<IActionResult> GetProductList(int pageNo, int pageSize)
+    public async Task<IActionResult> GetProductList(int pageNo, int pageSize, [FromQuery] string? search = null)
     {
         try
         {
-            var productLst = await _bL_Product.GetProduct(pageNo, pageSize);
+            var productLst = await _bL_Product.GetProduct(pageNo, pageSize, search);
             var responseModel = _response.Return
             (new ReturnModel
             {

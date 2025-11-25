@@ -34,7 +34,7 @@ public class DL_Tax
         return taxListResponseModel;
     }
 
-    public async Task<TaxListResponseModel> GetTaxList(int pageNo, int pageSize)
+    public async Task<TaxListResponseModel> GetTaxList(int pageNo, int pageSize, string? search = null)
     {
         TaxListResponseModel taxListResponseModel = new();
         try
@@ -43,6 +43,15 @@ public class DL_Tax
                 .Tbl_Taxes
                 .OrderByDescending(x => x.TaxId)
                 .AsNoTracking();
+
+            // Apply search filter if provided
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    x.FromAmount.ToString().Contains(search) ||
+                    x.ToAmount.ToString().Contains(search) ||
+                    x.Percentage.ToString().Contains(search));
+            }
 
             var tax = await query
                 .Pagination(pageNo, pageSize)

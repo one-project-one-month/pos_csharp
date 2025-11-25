@@ -46,11 +46,11 @@ public class ProductCategoryController : BaseController
     }
 
     [HttpGet("{pageNo}/{pageSize}")]
-    public async Task<IActionResult> GetProductCategory(int pageNo, int pageSize)
+    public async Task<IActionResult> GetProductCategory(int pageNo, int pageSize, [FromQuery] string? search = null)
     {
         try
         {
-            var item = await _productCategory.GetProductCategory(pageNo, pageSize);
+            var item = await _productCategory.GetProductCategory(pageNo, pageSize, search);
 
             var model = _response.Return
             (new ReturnModel

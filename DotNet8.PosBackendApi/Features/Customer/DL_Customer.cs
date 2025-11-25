@@ -31,7 +31,7 @@ public class DL_Customer
         return responseModel;
     }
 
-    public async Task<CustomerListResponseModel> GetCustomer(int pageNo, int pageSize)
+    public async Task<CustomerListResponseModel> GetCustomer(int pageNo, int pageSize, string? search = null)
     {
         var responseModel = new CustomerListResponseModel();
         try
@@ -39,6 +39,15 @@ public class DL_Customer
             var query = _context
                 .TblCustomers
                 .AsNoTracking();
+
+            // Apply search filter if provided
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    x.CustomerCode.Contains(search) ||
+                    x.CustomerName.Contains(search) ||
+                    x.MobileNo.Contains(search));
+            }
 
             var customers = await query
                 .Pagination(pageNo, pageSize)

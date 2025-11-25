@@ -3,6 +3,7 @@
 public partial class P_Customer
 {
     private CustomerListResponseModel? ResponseModel;
+    private string searchText = string.Empty;
 
     private int pageNo = 1;
     private int pageSize = 10;
@@ -20,8 +21,14 @@ public partial class P_Customer
 
     private async Task List()
     {
+        var url = Endpoints.Customer.WithPagination(pageNo, pageSize);
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            url += $"&search={Uri.EscapeDataString(searchText)}";
+        }
+
         ResponseModel = await HttpClientService.ExecuteAsync<CustomerListResponseModel>(
-            Endpoints.Customer.WithPagination(pageNo, pageSize),
+            url,
             EnumHttpMethod.Get
         );
     }
@@ -75,6 +82,27 @@ public partial class P_Customer
     {
         pageNo = i;
         await List();
+    }
+
+    private async Task Search()
+    {
+        pageNo = 1; // Reset to first page when searching
+        await List();
+    }
+
+    private async Task ClearSearch()
+    {
+        searchText = string.Empty;
+        pageNo = 1; // Reset to first page when clearing search
+        await List();
+    }
+
+    private async Task HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await Search();
+        }
     }
 }
 

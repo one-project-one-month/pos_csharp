@@ -15,11 +15,11 @@ public class SaleInvoiceController : BaseController
     }
 
     [HttpGet("{pageNo}/{pageSize}")]
-    public async Task<IActionResult> GetProductCategory(int pageNo, int pageSize)
+    public async Task<IActionResult> GetProductCategory(int pageNo, int pageSize, [FromQuery] string? search = null)
     {
         try
         {
-            var item = await _saleInvoice.GetSaleInvoice(pageNo, pageSize);
+            var item = await _saleInvoice.GetSaleInvoice(pageNo, pageSize, search);
 
             var model = _response.Return
             (new ReturnModel

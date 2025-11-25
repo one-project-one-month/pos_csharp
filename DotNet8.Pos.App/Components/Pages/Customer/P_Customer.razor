@@ -5,6 +5,35 @@
     Customer
 </MudText>
 
+<MudGrid>
+    <MudItem xs="12" sm="6" md="4">
+        <MudTextField @bind-Value="searchText"
+                      Label="Search"
+                      Placeholder="Search by code, name, or mobile..."
+                      Variant="MudBlazor.Variant.Outlined"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Immediate="true"
+                      OnKeyUp="HandleSearchKeyUp" />
+    </MudItem>
+    <MudItem xs="12" sm="6" md="4">
+        <MudButton Variant="MudBlazor.Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Search"
+                   OnClick="Search"
+                   Class="mt-1">
+            Search
+        </MudButton>
+        <MudButton Variant="MudBlazor.Variant.Outlined"
+                   Color="Color.Secondary"
+                   StartIcon="@Icons.Material.Filled.Clear"
+                   OnClick="ClearSearch"
+                   Class="mt-1 ml-2">
+            Clear
+        </MudButton>
+    </MudItem>
+</MudGrid>
+
 @if (ResponseModel is not null)
 {
 int count = 0;

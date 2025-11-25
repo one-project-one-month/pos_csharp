@@ -6,9 +6,9 @@ public class BL_SaleInvoice
 
     public BL_SaleInvoice(DL_SaleInvoice saleInvoice) => _saleInvoice = saleInvoice;
 
-    public async Task<SaleInvoiceListResponseModel> GetSaleInvoice(int pageNo, int pageSize)
+    public async Task<SaleInvoiceListResponseModel> GetSaleInvoice(int pageNo, int pageSize, string? search = null)
     {
-        return await _saleInvoice.GetSaleInvoice(pageNo, pageSize);
+        return await _saleInvoice.GetSaleInvoice(pageNo, pageSize, search);
     }
 
     public async Task<SaleInvoiceListResponseModel> GetSaleInvoice(

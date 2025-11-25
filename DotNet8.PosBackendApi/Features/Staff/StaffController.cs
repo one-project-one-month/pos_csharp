@@ -45,12 +45,12 @@ public class StaffController : BaseController
         }
     }
 
-    [HttpGet("{PageSize}/{PageNo}")]
-    public async Task<IActionResult> GetStaffs(int PageSize, int PageNo)
+    [HttpGet("{PageNo}/{PageSize}")]
+    public async Task<IActionResult> GetStaffs(int PageNo, int PageSize, [FromQuery] string? search = null)
     {
         try
         {
-            var lst = await _staff.GetStaffs(PageSize, PageNo);
+            var lst = await _staff.GetStaffs(PageSize, PageNo, search);
             //var responseModel = _response.ReturnGet
             //(model.MessageResponse.Message,
             //    model.DataList.Count,
@@ -116,7 +116,7 @@ public class StaffController : BaseController
             {
                 Token = RefreshToken(),
                 IsSuccess = staff.MessageResponse.IsSuccess,
-                EnumPos = EnumPos.Customer,
+                EnumPos = EnumPos.Staff,
                 Message = staff.MessageResponse.Message,
                 Item = staff.Data
             });

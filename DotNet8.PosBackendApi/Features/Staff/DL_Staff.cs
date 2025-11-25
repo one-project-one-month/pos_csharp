@@ -38,12 +38,21 @@ public class DL_Staff
         return responseModel;
     }
 
-    public async Task<StaffListResponseModel> GetStaffs(int PageSize, int PageNo)
+    public async Task<StaffListResponseModel> GetStaffs(int PageSize, int PageNo, string? search = null)
     {
         var responseModel = new StaffListResponseModel();
         try
         {
             var staffList = _context.TblStaffs.AsNoTracking();
+
+            // Apply search filter if provided
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                staffList = staffList.Where(x =>
+                    x.StaffCode.Contains(search) ||
+                    x.StaffName.Contains(search) ||
+                    x.MobileNo.Contains(search));
+            }
 
             var staff = await staffList
                .Pagination(PageNo, PageSize)

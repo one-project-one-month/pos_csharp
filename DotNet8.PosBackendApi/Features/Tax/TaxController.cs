@@ -40,11 +40,11 @@ public class TaxController : BaseController
     }
 
     [HttpGet("{pageNo}/{pageSize}")]
-    public async Task<IActionResult> GetTaxList(int pageNo, int pageSize)
+    public async Task<IActionResult> GetTaxList(int pageNo, int pageSize, [FromQuery] string? search = null)
     {
         try
         {
-            var lst = await _bL_Tax.GetTaxList(pageNo, pageSize);
+            var lst = await _bL_Tax.GetTaxList(pageNo, pageSize, search);
             var responseModel = _response.Return
             (new ReturnModel
             {

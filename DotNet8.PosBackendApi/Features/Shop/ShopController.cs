@@ -147,11 +147,11 @@ public class ShopController : BaseController
     }
 
     [HttpGet("{pageNo}/{pageSize}")]
-    public async Task<IActionResult> GetShopsWithPagination(int pageNo, int pageSize)
+    public async Task<IActionResult> GetShopsWithPagination(int pageNo, int pageSize, [FromQuery] string? search = null)
     {
         try
         {
-            var lst = await _bL_Shop.GetShops(pageNo, pageSize);
+            var lst = await _bL_Shop.GetShops(pageNo, pageSize, search);
             var responseModel = _response.Return
             (new ReturnModel
             {

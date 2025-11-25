@@ -30,7 +30,7 @@ public class DL_Product
 
         return responseModel;
     }
-    public async Task<ProductListResponseModel> GetProduct(int pageNo, int pageSize)
+    public async Task<ProductListResponseModel> GetProduct(int pageNo, int pageSize, string? search = null)
     {
         var responseModel = new ProductListResponseModel();
         try
@@ -39,6 +39,14 @@ public class DL_Product
                 .TblProducts
                 .OrderByDescending(x => x.ProductId)
                 .AsNoTracking();
+
+            // Apply search filter if provided
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    x.ProductCode.Contains(search) ||
+                    x.ProductName.Contains(search));
+            }
 
             var products = await query
                 .Pagination(pageNo, pageSize)

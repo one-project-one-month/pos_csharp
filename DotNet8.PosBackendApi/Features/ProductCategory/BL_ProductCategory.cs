@@ -12,9 +12,9 @@ public class BL_ProductCategory
         return response;
     }
 
-    public async Task<ProductCategoryListResponseModel> GetProductCategory(int pageNo, int pageSize)
+    public async Task<ProductCategoryListResponseModel> GetProductCategory(int pageNo, int pageSize, string? search = null)
     {
-        return await _productCategory.GetProductCategory(pageNo, pageSize);
+        return await _productCategory.GetProductCategory(pageNo, pageSize, search);
     }
 
     public async Task<ProductCategoryResponseModel> GetProductCategoryByCode(string productCategoryCode)

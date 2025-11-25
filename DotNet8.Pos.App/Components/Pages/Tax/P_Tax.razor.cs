@@ -6,6 +6,7 @@ public partial class P_Tax
 {
     private int pageNo = 1;
     private int pageSize = 10;
+    private string searchText = string.Empty;
 
     public TaxListResponseModel? responseModel;
 
@@ -22,8 +23,14 @@ public partial class P_Tax
 
     public async Task List()
     {
+        var url = Endpoints.Tax.WithPagination(pageNo, pageSize);
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            url += $"&search={Uri.EscapeDataString(searchText)}";
+        }
+
         responseModel = await HttpClientService.ExecuteAsync<TaxListResponseModel>(
-            Endpoints.Tax.WithPagination(pageNo, pageSize),
+            url,
             EnumHttpMethod.Get);
     }
 
@@ -75,5 +82,26 @@ public partial class P_Tax
     {
         pageNo = i;
         await List();
+    }
+
+    private async Task Search()
+    {
+        pageNo = 1; // Reset to first page when searching
+        await List();
+    }
+
+    private async Task ClearSearch()
+    {
+        searchText = string.Empty;
+        pageNo = 1; // Reset to first page when clearing search
+        await List();
+    }
+
+    private async Task HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await Search();
+        }
     }
 }

@@ -1,0 +1,42 @@
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField @bind-Value="searchText"
+                      Label="Search menu"
+                      Placeholder="Type to search menu items..."
+                      Variant="MudBlazor.Variant.Outlined"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      AutoFocus="true"
+                      Immediate="true"
+                      Class="mt-4" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">Cancel</MudButton>
+        <MudButton OnClick="Search" Color="Color.Primary" Variant="MudBlazor.Variant.Filled">Search</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public string SearchText { get; set; } = string.Empty;
+
+    private string searchText = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        searchText = SearchText;
+    }
+
+    private void Search()
+    {
+        MudDialog.Close(DialogResult.Ok(searchText));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

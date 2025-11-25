@@ -11,9 +11,9 @@ public class BL_Product
         var response = await _dL_Product.GetProduct();
         return response;
     }
-    public async Task<ProductListResponseModel> GetProduct(int pageNo, int pageSize)
+    public async Task<ProductListResponseModel> GetProduct(int pageNo, int pageSize, string? search = null)
     {
-        var response = await _dL_Product.GetProduct(pageNo, pageSize);
+        var response = await _dL_Product.GetProduct(pageNo, pageSize, search);
         return response;
     }
 

@@ -6,6 +6,7 @@ public partial class P_Shop
 {
     private int pageNo = 1;
     private int pageSize = 10;
+    private string searchText = string.Empty;
 
     private ShopListResponseModel? responseModel;
     protected override async void OnAfterRender(bool firstRender)
@@ -21,8 +22,14 @@ public partial class P_Shop
 
     private async Task List()
     {
+        var url = Endpoints.Shop.WithPagination(pageNo, pageSize);
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            url += $"&search={Uri.EscapeDataString(searchText)}";
+        }
+
         responseModel = await HttpClientService.ExecuteAsync<ShopListResponseModel>(
-            Endpoints.Shop.WithPagination(pageNo, pageSize),
+            url,
             EnumHttpMethod.Get
         );
     }
@@ -79,5 +86,26 @@ public partial class P_Shop
     {
         pageNo = i;
         await List();
+    }
+
+    private async Task Search()
+    {
+        pageNo = 1; // Reset to first page when searching
+        await List();
+    }
+
+    private async Task ClearSearch()
+    {
+        searchText = string.Empty;
+        pageNo = 1; // Reset to first page when clearing search
+        await List();
+    }
+
+    private async Task HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await Search();
+        }
     }
 }

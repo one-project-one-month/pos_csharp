@@ -8,6 +8,7 @@ public partial class P_SaleInvoiceList
     private SaleInvoiceListResponseModel? ResponseModel;
     private int pageNo = 1;
     private int pageSize = 10;
+    private string searchText = string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -22,9 +23,15 @@ public partial class P_SaleInvoiceList
 
     private async Task List()
     {
+        var url = Endpoints.SaleInvoice.WithPagination(pageNo, pageSize);
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            url += $"&search={Uri.EscapeDataString(searchText)}";
+        }
+
         ResponseModel = await HttpClientService.ExecuteAsync<SaleInvoiceListResponseModel>
         (
-            Endpoints.SaleInvoice.WithPagination(pageNo, pageSize),
+            url,
             EnumHttpMethod.Get
         );
         Console.WriteLine(JsonConvert.SerializeObject(ResponseModel));
@@ -39,6 +46,27 @@ public partial class P_SaleInvoiceList
     {
         pageNo = i;
         await List();
+    }
+
+    private async Task Search()
+    {
+        pageNo = 1; // Reset to first page when searching
+        await List();
+    }
+
+    private async Task ClearSearch()
+    {
+        searchText = string.Empty;
+        pageNo = 1; // Reset to first page when clearing search
+        await List();
+    }
+
+    private async Task HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await Search();
+        }
     }
 
     private async Task Popup(string voucherNo)

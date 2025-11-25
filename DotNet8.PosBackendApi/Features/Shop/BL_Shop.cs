@@ -11,9 +11,9 @@ public class BL_Shop
         var response = await _dL_Shop.GetShops();
         return response;
     }
-    public async Task<ShopListResponseModel> GetShops(int pageNo, int pageSize)
+    public async Task<ShopListResponseModel> GetShops(int pageNo, int pageSize, string? search = null)
     {
-        var response = await _dL_Shop.GetShops(pageNo, pageSize);
+        var response = await _dL_Shop.GetShops(pageNo, pageSize, search);
         return response;
     }
     public async Task<ShopResponseModel> GetShop(int id)

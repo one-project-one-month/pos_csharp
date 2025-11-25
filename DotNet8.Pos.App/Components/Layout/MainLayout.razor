@@ -4,83 +4,136 @@
 @inject NavigationManager NavigationManager
 @inject IDialogService DialogService
 
-@* <div class="page">
-    <div class="sidebar">
-        <MudNavMenu Rounded="true" Margin="Margin.Dense" Color="Color.Primary" Class="pa-2">
-            <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.Prefix" Href="/components/navmenu" Icon="@Icons.Material.Filled.Storage">Servers</MudNavLink>
-            <MudNavLink Href="/thelab" Icon="@Icons.Material.Filled.Science">The Lab</MudNavLink>
-        </MudNavMenu>
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
-*@
-@*
-<MudDrawerContainer Class="mud-height-full">
-    <MudNavMenu Rounded="true" Margin="Margin.Dense" Color="Color.Primary" Class="pa-2">
-        <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-        <MudNavLink Match="NavLinkMatch.Prefix" Href="/components/navmenu" Icon="@Icons.Material.Filled.Storage">Servers</MudNavLink>
-        <MudNavLink Href="/thelab" Icon="@Icons.Material.Filled.Science">The Lab</MudNavLink>
-    </MudNavMenu>
-    <div class="d-flex justify-center align-center mud-height-full">
-        @Body
-    </div>
-</MudDrawerContainer> *@
-
-<MudPaper Height="900px" Style="overflow:hidden; position:relative;">
+<MudLayout>
 	@if (_isLoading)
 	{
 		<div style="position:absolute; top:0; left:0; width:100%; height:100%; background-color:white; z-index:9999; display:flex; justify-content:center; align-items:center;">
 			<div class="loader"></div>
 		</div>
 	}
-	<MudDrawerContainer Class="mud-height-full">
-		<MudDrawer @bind-Open="open" Elevation="0" Variant="@DrawerVariant.Persistent" Color="Color.Default">
-			<MudDrawerHeader>
-				<MudText Typo="Typo.h6">POS</MudText>
-			</MudDrawerHeader>
-			<MudNavMenu Dense="true" Rounded="true" Margin="Margin.Dense" Color="Color.Success" Class="pa-2">
-				<MudNavLink Match="NavLinkMatch.All" Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Href="/product" Icon="@Icons.Material.Filled.ProductionQuantityLimits">Products</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Href="/product-category" Icon="@Icons.Material.Filled.Category">Product Category</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Href="/customer" Icon="@Icons.Material.Filled.Person">Customers</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Href="/staff" Icon="@Icons.Material.Filled.Person4">Staffs</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Href="/township" Icon="@Icons.Material.Filled.Room">Townships</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Href="/state" Icon="@Icons.Material.Filled.AddLocation">States</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Href="/sale-invoice-list" Icon="@Icons.Material.Filled.AssuredWorkload">Sale Invoice</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Href="/tax" Icon="@Icons.Material.Filled.AttachMoney">Tax</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Href="/report" Icon="@Icons.Material.Filled.RepeatOn">Report</MudNavLink>
-				<MudNavLink Match="NavLinkMatch.All" Href="/shop" Icon="@Icons.Material.Filled.Shop">Shop</MudNavLink>
-				<MudDivider />
-				<MudNavLink Match="NavLinkMatch.All"
-							OnClick="Logout"
-							Style="cursor: pointer;"
-							Icon="@Icons.Material.Filled.Logout">
-					Logout
-				</MudNavLink>
-			</MudNavMenu>
-		</MudDrawer>
-		<div class="d-flex mud-height-full">
-			<MudContainer MaxWidth="MaxWidth.Large" Class="ma-4">
-				@Body
-			</MudContainer>
+
+	<MudAppBar Elevation="1">
+		<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+		<MudText Typo="Typo.h5" Class="ml-3">POS System</MudText>
+		<MudSpacer />
+		@* <div class="d-none d-md-flex">
+			<MudTextField @bind-Value="menuSearchText"
+						  Placeholder="Search menu..."
+						  Variant="MudBlazor.Variant.Outlined"
+						  Margin="Margin.Dense"
+						  Adornment="Adornment.Start"
+						  AdornmentIcon="@Icons.Material.Filled.Search"
+						  Class="mud-width-300"
+						  Immediate="true"
+						  AdornmentColor="Color.Default"
+						  Style="max-width: 300px;" /> 
+		</div> *@
+		<div class="d-flex d-md-none">
+			<MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Inherit" OnClick="OpenMobileSearch" />
 		</div>
-	</MudDrawerContainer>
-</MudPaper>
+		<MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+	</MudAppBar>
+
+	<MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+			<MudDrawerHeader Class="pa-3">
+				<MudText Typo="Typo.subtitle1" Color="Color.Primary" Class="font-weight-bold">Navigation Menu</MudText>
+			</MudDrawerHeader>
+			<MudNavMenu Dense="true" Class="pa-2" Style="height: calc(100vh - 140px); overflow-y: auto;">
+				@if (IsMenuItemVisible("Dashboard"))
+				{
+					<MudNavLink Match="NavLinkMatch.All" Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+				}
+
+				@if (IsMenuGroupVisible("Master Data", new List<string> { "Products", "Product Category", "Customers", "Staffs", "Townships", "States" }))
+				{
+					<MudNavGroup Title="Master Data" Expanded="_masterDataExpanded" Icon="@Icons.Material.Filled.Storage" ExpandedChanged="ToggleMasterData">
+						@if (IsMenuItemVisible("Products"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/product" Icon="@Icons.Material.Filled.ProductionQuantityLimits">Products</MudNavLink>
+						}
+						@if (IsMenuItemVisible("Product Category"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/product-category" Icon="@Icons.Material.Filled.Category">Product Category</MudNavLink>
+						}
+						@if (IsMenuItemVisible("Customers"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/customer" Icon="@Icons.Material.Filled.Person">Customers</MudNavLink>
+						}
+						@if (IsMenuItemVisible("Staffs"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/staff" Icon="@Icons.Material.Filled.Person4">Staffs</MudNavLink>
+						}
+						@if (IsMenuItemVisible("Townships"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/township" Icon="@Icons.Material.Filled.Room">Townships</MudNavLink>
+						}
+						@if (IsMenuItemVisible("States"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/state" Icon="@Icons.Material.Filled.AddLocation">States</MudNavLink>
+						}
+					</MudNavGroup>
+				}
+
+				@if (IsMenuGroupVisible("Operations", new List<string> { "Sale Invoice", "Tax" }))
+				{
+					<MudNavGroup Title="Operations" Expanded="_operationsExpanded" Icon="@Icons.Material.Filled.ShoppingCart" ExpandedChanged="ToggleOperations">
+						@if (IsMenuItemVisible("Sale Invoice"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/sale-invoice-list" Icon="@Icons.Material.Filled.AssuredWorkload">Sale Invoice</MudNavLink>
+						}
+						@if (IsMenuItemVisible("Tax"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/tax" Icon="@Icons.Material.Filled.AttachMoney">Tax</MudNavLink>
+						}
+					</MudNavGroup>
+				}
+
+				@if (IsMenuGroupVisible("Reports", new List<string> { "Report", "Shop" }))
+				{
+					<MudNavGroup Title="Reports" Expanded="_reportsExpanded" Icon="@Icons.Material.Filled.Analytics" ExpandedChanged="ToggleReports">
+						@if (IsMenuItemVisible("Report"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/report" Icon="@Icons.Material.Filled.RepeatOn">Report</MudNavLink>
+						}
+						@if (IsMenuItemVisible("Shop"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/shop" Icon="@Icons.Material.Filled.Shop">Shop</MudNavLink>
+						}
+					</MudNavGroup>
+				}
+
+				@if (IsMenuItemVisible("Logout"))
+				{
+					@if (IsMenuGroupVisible("Reports", new List<string> { "Report", "Shop" }) || IsMenuGroupVisible("Operations", new List<string> { "Sale Invoice", "Tax" }) || IsMenuGroupVisible("Master Data", new List<string> { "Products", "Product Category", "Customers", "Staffs", "Townships", "States" }) || IsMenuItemVisible("Dashboard"))
+					{
+						<MudDivider Class="my-2" />
+					}
+					<MudNavLink Match="NavLinkMatch.All"
+								OnClick="Logout"
+								Style="cursor: pointer;"
+								Icon="@Icons.Material.Filled.Logout">
+						Logout
+					</MudNavLink>
+				}
+			</MudNavMenu>
+	</MudDrawer>
+
+	<MudMainContent>
+		<MudContainer Class="pa-4" MaxWidth="MaxWidth.Large">
+			@Body
+		</MudContainer>
+	</MudMainContent>
+</MudLayout>
 
 @code
 {
-	bool open = true;
+	private bool _drawerOpen = true;
 	private bool _isLoading = true;
+	private bool _masterDataExpanded = false;
+	private bool _operationsExpanded = false;
+	private bool _reportsExpanded = false;
+	private string menuSearchText = string.Empty;
+
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -101,23 +154,90 @@
 		}
 	}
 
-	private async Task MenuClick(string url)
+
+	private void ToggleMasterData(bool value)
 	{
-		await InjectService.EnableLoading();
-		Nav.NavigateTo(url);
+		_masterDataExpanded = value;
+		if (_masterDataExpanded)
+		{
+			_operationsExpanded = false;
+			_reportsExpanded = false;
+		}
 	}
 
-    private async Task Logout()
-    {
-        var dialog = await DialogService.ShowAsync<LogoutDialog>("Logout");
-        var result = await dialog.Result;
+	private void ToggleOperations(bool value)
+	{
+		_operationsExpanded = value;
+		if (_operationsExpanded)
+		{
+			_masterDataExpanded = false;
+			_reportsExpanded = false;
+		}
+	}
 
-        if (!result.Canceled)
-        {
-            await AuthStateProvider.ClearTokenAsync();
-            NavigationManager.NavigateTo("/login");
-        }
-    }
+	private void ToggleReports(bool value)
+	{
+		_reportsExpanded = value;
+		if (_reportsExpanded)
+		{
+			_masterDataExpanded = false;
+			_operationsExpanded = false;
+		}
+	}
+
+	private async Task Logout()
+	{
+		var dialog = await DialogService.ShowAsync<LogoutDialog>("Logout");
+		var result = await dialog.Result;
+
+		if (!result.Canceled)
+		{
+			await AuthStateProvider.ClearTokenAsync();
+			NavigationManager.NavigateTo("/login");
+		}
+	}
+
+	private bool IsMenuItemVisible(string menuText)
+	{
+		if (string.IsNullOrWhiteSpace(menuSearchText))
+			return true;
+
+		return menuText.Contains(menuSearchText, StringComparison.OrdinalIgnoreCase);
+	}
+
+	private bool IsMenuGroupVisible(string groupTitle, List<string> menuItems)
+	{
+		if (string.IsNullOrWhiteSpace(menuSearchText))
+			return true;
+
+		// Show group if title matches or any menu item matches
+		if (groupTitle.Contains(menuSearchText, StringComparison.OrdinalIgnoreCase))
+			return true;
+
+		return menuItems.Any(item => item.Contains(menuSearchText, StringComparison.OrdinalIgnoreCase));
+	}
+
+	private async Task OpenMobileSearch()
+	{
+		var parameters = new DialogParameters
+		{
+			["SearchText"] = menuSearchText
+		};
+
+		var dialog = await DialogService.ShowAsync<MobileMenuSearchDialog>("Search Menu", parameters);
+		var result = await dialog.Result;
+
+		if (!result.Canceled && result.Data is string searchText)
+		{
+			menuSearchText = searchText;
+			StateHasChanged();
+		}
+	}
+
+	private void DrawerToggle()
+	{
+		_drawerOpen = !_drawerOpen;
+	}
 }
 
 

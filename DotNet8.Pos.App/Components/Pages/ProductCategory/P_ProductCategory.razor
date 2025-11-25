@@ -10,6 +10,34 @@
     Product Category
 </MudText>
 
+<MudGrid>
+    <MudItem xs="12" sm="6" md="4">
+        <MudTextField @bind-Value="searchText"
+                      Label="Search"
+                      Placeholder="Search by code or name..."
+                      Variant="MudBlazor.Variant.Outlined"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Immediate="true"
+                      OnKeyUp="HandleSearchKeyUp" />
+    </MudItem>
+    <MudItem xs="12" sm="6" md="4">
+        <MudButton Variant="MudBlazor.Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Search"
+                   OnClick="Search"
+                   Class="mt-1">
+            Search
+        </MudButton>
+        <MudButton Variant="MudBlazor.Variant.Outlined"
+                   Color="Color.Secondary"
+                   StartIcon="@Icons.Material.Filled.Clear"
+                   OnClick="ClearSearch"
+                   Class="mt-1 ml-2">
+            Clear
+        </MudButton>
+    </MudItem>
+</MudGrid>
 
 @if (ResponseModel is not null)
 {
@@ -47,6 +75,7 @@ int count = 0;
 private ProductCategoryListResponseModel? ResponseModel;
 private int pageNo = 1;
 private int pageSize = 10;
+private string searchText = string.Empty;
 
 [Parameter] public ProductRequestModel reqModel { get; set; } = new();
 
@@ -63,9 +92,15 @@ protected override async Task OnAfterRenderAsync(bool firstRender)
 
 private async Task List()
 {
+    var url = Endpoints.ProductCategory.WithPagination(pageNo, pageSize);
+    if (!string.IsNullOrWhiteSpace(searchText))
+    {
+        url += $"&search={Uri.EscapeDataString(searchText)}";
+    }
+
     ResponseModel = await HttpClientService.ExecuteAsync<ProductCategoryListResponseModel>
     (
-        Endpoints.ProductCategory.WithPagination(pageNo, pageSize),
+        url,
         EnumHttpMethod.Get
     );
 }
@@ -74,6 +109,27 @@ private async Task PageChanged(int i)
 {
     pageNo = i;
     await List();
+}
+
+private async Task Search()
+{
+    pageNo = 1; // Reset to first page when searching
+    await List();
+}
+
+private async Task ClearSearch()
+{
+    searchText = string.Empty;
+    pageNo = 1; // Reset to first page when clearing search
+    await List();
+}
+
+private async Task HandleSearchKeyUp(KeyboardEventArgs e)
+{
+    if (e.Key == "Enter")
+    {
+        await Search();
+    }
 }
 
 // private async Task Popup()

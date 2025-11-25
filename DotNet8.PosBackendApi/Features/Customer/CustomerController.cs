@@ -41,11 +41,11 @@ public class CustomerController : BaseController
     }
 
     [HttpGet("{pageNo}/{pageSize}")]
-    public async Task<IActionResult> GetCustomer(int pageNo, int pageSize)
+    public async Task<IActionResult> GetCustomer(int pageNo, int pageSize, [FromQuery] string? search = null)
     {
         try
         {
-            var customerLst = await _bL_Customer.GetCustomer(pageNo, pageSize);
+            var customerLst = await _bL_Customer.GetCustomer(pageNo, pageSize, search);
             var responseModel = _response.Return
             (new ReturnModel
             {

@@ -48,7 +48,7 @@ public class DL_SaleInvoice
     //    return responseModel;
     //}
 
-    public async Task<SaleInvoiceListResponseModel> GetSaleInvoice(int pageNo, int pageSize)
+    public async Task<SaleInvoiceListResponseModel> GetSaleInvoice(int pageNo, int pageSize, string? search = null)
     {
         var responseModel = new SaleInvoiceListResponseModel();
         try
@@ -56,6 +56,15 @@ public class DL_SaleInvoice
             var query = _context
                 .TblSaleInvoices
                 .AsNoTracking();
+
+            // Apply search filter if provided
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    x.VoucherNo.Contains(search) ||
+                    x.StaffCode.Contains(search));
+            }
+
             var totalCount = await query.CountAsync();
             var pageCount = totalCount / pageSize;
             if (totalCount % pageSize > 0)

@@ -153,7 +153,7 @@ public class DL_Shop
         return responseModel;
     }
 
-    public async Task<ShopListResponseModel> GetShops(int pageNo, int pageSize)
+    public async Task<ShopListResponseModel> GetShops(int pageNo, int pageSize, string? search = null)
     {
         var responseModel = new ShopListResponseModel();
         try
@@ -162,6 +162,14 @@ public class DL_Shop
                 .TblShops
                 .OrderBy(x => x.ShopId)
                 .AsNoTracking();
+
+            // Apply search filter if provided
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    x.ShopCode.Contains(search) ||
+                    x.ShopName.Contains(search));
+            }
 
             var shopList = await query
                 .Pagination(pageNo, pageSize)

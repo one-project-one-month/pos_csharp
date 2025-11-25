@@ -29,7 +29,7 @@ public class DL_ProductCategory
         return responseModel;
     }
 
-    public async Task<ProductCategoryListResponseModel> GetProductCategory(int pageNo, int pageSize)
+    public async Task<ProductCategoryListResponseModel> GetProductCategory(int pageNo, int pageSize, string? search = null)
     {
         var responseModel = new ProductCategoryListResponseModel();
         try
@@ -37,6 +37,15 @@ public class DL_ProductCategory
             var query = _context
                 .TblProductCategories
                 .AsNoTracking();
+
+            // Apply search filter if provided
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    x.ProductCategoryCode.Contains(search) ||
+                    x.ProductCategoryName.Contains(search));
+            }
+
             var totalCount = await query.CountAsync();
             var pageCount = totalCount / pageSize;
             if (totalCount % pageSize > 0)
