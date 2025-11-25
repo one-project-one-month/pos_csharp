@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.3.11222.16 d18.3
+VisualStudioVersion = 18.3.11222.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Documents", "_Documents", "{153A571F-E90B-4CF4-B0E6-5F0C6B5B9D3D}"
 EndProject
@@ -17,9 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{3415EC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{B7F4E037-8790-4322-BD4B-C43DE3D494D5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet8.Pos.App", "DotNet8.Pos.App\DotNet8.Pos.App\DotNet8.Pos.App.csproj", "{A879F733-B39C-48E5-8F31-F7525604A048}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{1CF41893-D71A-42D3-B4AB-E106286B0676}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNet8.Pos.App", "DotNet8.Pos.App\DotNet8.Pos.App.csproj", "{AB47E4F4-1EFB-9311-CB09-2AE740CAE362}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,10 +43,10 @@ Global
 		{FA8ACA95-C2E7-401D-AA3E-90A84CDB2AF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA8ACA95-C2E7-401D-AA3E-90A84CDB2AF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA8ACA95-C2E7-401D-AA3E-90A84CDB2AF1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A879F733-B39C-48E5-8F31-F7525604A048}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A879F733-B39C-48E5-8F31-F7525604A048}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A879F733-B39C-48E5-8F31-F7525604A048}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A879F733-B39C-48E5-8F31-F7525604A048}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB47E4F4-1EFB-9311-CB09-2AE740CAE362}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB47E4F4-1EFB-9311-CB09-2AE740CAE362}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB47E4F4-1EFB-9311-CB09-2AE740CAE362}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB47E4F4-1EFB-9311-CB09-2AE740CAE362}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -56,7 +56,7 @@ Global
 		{9EB9BF5F-E1DD-4DB8-9D73-605F3486CC28} = {1CF41893-D71A-42D3-B4AB-E106286B0676}
 		{A7F600CB-ABBA-4612-A40F-7AE557A607DE} = {B7F4E037-8790-4322-BD4B-C43DE3D494D5}
 		{FA8ACA95-C2E7-401D-AA3E-90A84CDB2AF1} = {1CF41893-D71A-42D3-B4AB-E106286B0676}
-		{A879F733-B39C-48E5-8F31-F7525604A048} = {3415EC1D-3959-4A43-8E3D-EFEB4084C952}
+		{AB47E4F4-1EFB-9311-CB09-2AE740CAE362} = {3415EC1D-3959-4A43-8E3D-EFEB4084C952}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C3F2505-7CD4-4387-B04A-2E8FADE5FC38}
