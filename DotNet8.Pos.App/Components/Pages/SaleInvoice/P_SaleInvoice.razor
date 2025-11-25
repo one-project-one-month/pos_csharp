@@ -5,11 +5,23 @@
 	.product-card {
 		border-radius: 12px;
 		overflow: hidden;
+		transition: all 0.3s ease;
+		position: relative;
 	}
 
 		.product-card:hover {
 			transform: translateY(-4px);
 			box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+		}
+
+	.product-card.selected {
+		border: 3px solid #4CAF50;
+		background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+		box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3) !important;
+	}
+
+		.product-card.selected:hover {
+			box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4) !important;
 		}
 
 	.cart-item {
@@ -55,25 +67,39 @@
 					<MudGrid Spacing="3">
 						@foreach (var item in lstProduct)
 						{
+							var isSelected = IsProductSelected(item);
+							var selectedClass = isSelected ? "product-card selected" : "product-card";
+							var quantity = lstSaleInvoice?.FirstOrDefault(x => x.ProductCode == item.ProductCode)?.Quantity ?? 0;
 							<MudItem xs="12" sm="6" md="4" lg="3">
-								<MudCard Class="product-card" Elevation="4" Style="cursor: pointer; transition: all 0.3s ease;" @onclick="@(() => AddItem(item))">
+								<MudCard Class="@(selectedClass)" Elevation="4" Style="cursor: pointer;" @onclick="@(() => AddItem(item))">
+									@if (isSelected)
+									{
+										<div style="position: absolute; top: 8px; right: 8px; z-index: 10;">
+											<MudChip Color="Color.Success" Variant="MudBlazor.Variant.Filled" Size="Size.Small">
+												<MudIcon Icon="@Icons.Material.Filled.CheckCircle" Class="mr-1" />
+												In Cart (@quantity)
+											</MudChip>
+										</div>
+									}
 									<MudCardContent Class="pa-4">
 										<div class="d-flex flex-column align-center">
-											<MudAvatar Size="Size.Large" Color="Color.Primary" Class="mb-3">
-												<MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Size="Size.Large" />
+											<MudAvatar Size="Size.Large" Color="@(isSelected ? Color.Success : Color.Primary)" Class="mb-3">
+												<MudIcon Icon="@(isSelected ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.ShoppingCart)" Size="Size.Large" />
 											</MudAvatar>
 											<MudText Typo="Typo.h6" Align="Align.Center" Class="mb-2" Style="font-weight: 600;">@item.ProductName</MudText>
 											<MudChip Color="Color.Success" Variant="MudBlazor.Variant.Filled" Size="Size.Small" Class="mb-2">
 												<MudIcon Icon="@Icons.Material.Filled.AttachMoney" Class="mr-1" />
 												@item.Price.ToString("C")
 											</MudChip>
-											<MudText Typo="Typo.body2" Color="Color.Info" Align="Align.Center">Click to add to cart</MudText>
+											<MudText Typo="Typo.body2" Color="@(isSelected ? Color.Success : Color.Info)" Align="Align.Center">
+												@(isSelected ? "Click to add more" : "Click to add to cart")
+											</MudText>
 										</div>
 									</MudCardContent>
 									<MudCardActions Class="pa-2">
-										<MudButton Variant="MudBlazor.Variant.Text" Color="Color.Primary" FullWidth="true" Size="Size.Small">
-											<MudIcon Icon="@Icons.Material.Filled.AddShoppingCart" Class="mr-1" />
-											Add Item
+										<MudButton Variant="MudBlazor.Variant.Text" Color="@(isSelected ? Color.Success : Color.Primary)" FullWidth="true" Size="Size.Small">
+											<MudIcon Icon="@(isSelected ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.AddShoppingCart)" Class="mr-1" />
+											@(isSelected ? "In Cart" : "Add Item")
 										</MudButton>
 									</MudCardActions>
 								</MudCard>

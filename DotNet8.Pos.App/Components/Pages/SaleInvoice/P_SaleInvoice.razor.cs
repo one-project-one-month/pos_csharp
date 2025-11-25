@@ -53,6 +53,7 @@ public partial class P_SaleInvoice
             lstSaleInvoice.Where(x => x.ProductCode == requestModel.ProductCode).FirstOrDefault()!.Amount += requestModel.Price;
         }
         Console.WriteLine(lstSaleInvoice.Select(x => x.Price * x.Quantity).Sum());
+        StateHasChanged();
     }
 
     private void IncreaseCount(SaleInvoiceDetailModel requestModel)
@@ -60,6 +61,7 @@ public partial class P_SaleInvoice
         requestModel.Quantity += 1;
         lstSaleInvoice!.Where(x => x.ProductCode == requestModel.ProductCode).FirstOrDefault()!.Quantity = requestModel.Quantity; ;
         lstSaleInvoice!.Where(x => x.ProductCode == requestModel.ProductCode).FirstOrDefault()!.Amount = (requestModel.Price * requestModel.Quantity);
+        StateHasChanged();
     }
 
     private void DecreaseCount(SaleInvoiceDetailModel requestModel, int quantity)
@@ -69,6 +71,7 @@ public partial class P_SaleInvoice
             requestModel.Quantity -= quantity;
             lstSaleInvoice!.Where(x => x.ProductCode == requestModel.ProductCode).FirstOrDefault()!.Quantity = requestModel.Quantity;
             lstSaleInvoice!.Where(x => x.ProductCode == requestModel.ProductCode).FirstOrDefault()!.Amount = (requestModel.Price * requestModel.Quantity);
+            StateHasChanged();
         }
     }
 
@@ -90,6 +93,11 @@ public partial class P_SaleInvoice
     private void Back()
     {
         saleInvoiceFormType = EnumSaleInvoiceFormType.SaleProduct;
+    }
+
+    private bool IsProductSelected(ProductModel product)
+    {
+        return lstSaleInvoice != null && lstSaleInvoice.Any(x => x.ProductCode == product.ProductCode && x.Quantity > 0);
     }
 
     private async void CheckoutPay()
