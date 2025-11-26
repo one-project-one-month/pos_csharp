@@ -1,0 +1,39 @@
+@using DotNet8.Pos.App.Models.Report
+
+@if (bestSellingProductResponseModel is not null)
+{
+    int count = 0;
+    <MudSimpleTable Style="overflow-x: auto;">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Product Code</th>
+                <th>Product Name</th>
+                <th>Total Quantity</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (bestSellingProductResponseModel.Data?.Report != null)
+            {
+                @foreach (var item in bestSellingProductResponseModel.Data.Report)
+                {
+                <tr>
+                    <td>@(++count)</td>
+                    <td>@item.ProductCode</td>
+                    <td>@item.ProductName</td>
+                    <td>@item.TotalQuantity</td>
+                    <td>@string.Format("{0:N0} MMK", item.TotalAmount)</td>
+                </tr>
+                }
+            }
+        </tbody>
+    </MudSimpleTable>
+    <MudPagination SelectedChanged="PageChanged" Variant="MudBlazor.Variant.Filled" Count="@(bestSellingProductResponseModel?.PageSetting?.PageCount ?? 0)" Style="margin-top:3%" />
+}
+
+@code {
+    [Parameter] public BestSellingProductListResponseModel? bestSellingProductResponseModel { get; set; }
+    [Parameter] public EventCallback<int> PageChanged { get; set; }
+}
+

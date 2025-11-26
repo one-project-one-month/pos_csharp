@@ -1,0 +1,223 @@
+@page "/report/monthly"
+@using DotNet8.Pos.App.Models.Report
+
+<MudGrid>
+    <MudItem xs="12" sm="6">
+        <MudStack Row="true" Justify="Justify.FlexStart">
+            <MudSelect T="int" Label="Select Year" @bind-Value="@selectedMonthlyYear" Variant="MudBlazor.Variant.Outlined" Style="width: 120px;">
+                @foreach (var year in AvailableYears)
+                {
+                    <MudSelectItem Value="@year">@year</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="int?" Label="Select Month" @bind-Value="@selectedMonth" Variant="MudBlazor.Variant.Outlined" Style="width: 140px;" Clearable="true">
+                <MudSelectItem Value="@((int?)null)">None</MudSelectItem>
+                @foreach (var month in AvailableMonths)
+                {
+                    <MudSelectItem Value="@((int?)month.Key)">@month.Value</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="string" Label="Group By" @bind-Value="@groupBy" Variant="MudBlazor.Variant.Outlined" Style="width: 150px;">
+                <MudSelectItem Value="@("date")">Date</MudSelectItem>
+                <MudSelectItem Value="@("day")">Day of Month</MudSelectItem>
+            </MudSelect>
+        </MudStack>
+    </MudItem>
+</MudGrid>
+<MudButton Class="mt-5 mb-5" Variant="MudBlazor.Variant.Filled" Color="Color.Primary" OnClick="ApplyFilter">Apply</MudButton>
+<br />
+
+@if (responseModel is not null)
+{
+    // Calculate totals
+    var totalAmount = responseModel.Data?.Report?.Sum(x => x.TotalAmount) ?? 0;
+    var transactionCount = responseModel.Data?.Report?.Count ?? 0;
+
+    var periodText = selectedMonth.HasValue
+        ? $"{AvailableMonths[selectedMonth.Value]} {selectedMonthlyYear}"
+        : $"Year {selectedMonthlyYear}";
+
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h5">Sales Summary - @periodText</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid>
+                <MudItem xs="12" sm="4">
+                    <MudPaper Class="pa-4" Elevation="2">
+                        <MudText Typo="Typo.h6" Color="Color.Primary">Total Sales</MudText>
+                        <MudText Typo="Typo.h4" Color="Color.Success">@string.Format("{0:N0} MMK", totalAmount)</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudPaper Class="pa-4" Elevation="2">
+                        <MudText Typo="Typo.h6" Color="Color.Primary">Transaction Count</MudText>
+                        <MudText Typo="Typo.h4" Color="Color.Info">@string.Format("{0:N0}", transactionCount)</MudText>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudPaper Class="pa-4" Elevation="2">
+                        <MudText Typo="Typo.h6" Color="Color.Primary">Average per Transaction</MudText>
+                        <MudText Typo="Typo.h4" Color="Color.Warning">@string.Format("{0:N0} MMK", transactionCount > 0 ? totalAmount / transactionCount : 0)</MudText>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+    </MudCard>
+
+    <br />
+
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h6">Grouped Transactions by @GetGroupByDisplayName()</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            @if (GetGroupedData() != null && GetGroupedData().Any())
+            {
+                <MudSimpleTable Style="overflow-x: auto;">
+                    <thead>
+                        <tr>
+                            <th>Group</th>
+                            <th>Transaction Count</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var group in GetGroupedData())
+                        {
+                            <tr style="background-color: #f5f5f5; font-weight: bold;">
+                                <td>@group.Key</td>
+                                <td>@group.Count()</td>
+                                <td>@string.Format("{0:N0} MMK", group.Sum(x => x.TotalAmount))</td>
+                            </tr>
+                        }
+                        <tr style="background-color: #e3f2fd; font-weight: bold; border-top: 2px solid #1976d2;">
+                            <td><strong>GRAND TOTAL</strong></td>
+                            <td><strong>@responseModel.Data.Report.Count</strong></td>
+                            <td><strong>@string.Format("{0:N0} MMK", responseModel.Data.Report.Sum(x => x.TotalAmount))</strong></td>
+                        </tr>
+                    </tbody>
+                </MudSimpleTable>
+
+                <MudExpansionPanels Style="margin-top: 20px;">
+                    @foreach (var group in GetGroupedData())
+                    {
+                        <MudExpansionPanel Text="@($"{group.Key} - {group.Count()} transactions - {string.Format("{0:N0} MMK", group.Sum(x => x.TotalAmount))}")">
+                            <MudSimpleTable Style="overflow-x: auto;">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Invoice Date</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int count = 0;
+                                    }
+                                    @foreach (var item in group)
+                                    {
+                                        <tr>
+                                            <td>@(++count)</td>
+                                            <td>@(item.SaleInvoiceDate.ToDateTime().ToString("dd/MMM/yyyy"))</td>
+                                            <td>@string.Format("{0:N0} MMK", item.TotalAmount)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </MudSimpleTable>
+                        </MudExpansionPanel>
+                    }
+                </MudExpansionPanels>
+            }
+            else
+            {
+                <MudText>No data to display</MudText>
+            }
+        </MudCardContent>
+    </MudCard>
+}
+
+@code {
+    private ReportListResponseModel? responseModel;
+    private int selectedMonthlyYear { get; set; } = DateTime.Now.Year;
+    private int? selectedMonth { get; set; }
+    private string groupBy { get; set; } = "date";
+    private int _pageNo = 1;
+    private int _pageSize = 10;
+
+    private List<int> AvailableYears => Enumerable.Range(DateTime.Now.Year - 10, 12).ToList();
+
+    private Dictionary<int, string> AvailableMonths => new Dictionary<int, string>
+    {
+        { 1, "January" },
+        { 2, "February" },
+        { 3, "March" },
+        { 4, "April" },
+        { 5, "May" },
+        { 6, "June" },
+        { 7, "July" },
+        { 8, "August" },
+        { 9, "September" },
+        { 10, "October" },
+        { 11, "November" },
+        { 12, "December" }
+    };
+
+    private async Task ApplyFilter()
+    {
+        await InjectService.EnableLoading();
+
+        if (!selectedMonth.HasValue)
+        {
+            // Filter by year only - use yearly endpoint
+            responseModel = await HttpClientService.ExecuteAsync<ReportListResponseModel>(
+                $"{Endpoints.Report}/yearly-report/{selectedMonthlyYear}/{_pageNo}/{_pageSize}",
+                EnumHttpMethod.Get
+            );
+        }
+        else
+        {
+            // Filter by specific month and year
+            responseModel = await HttpClientService.ExecuteAsync<ReportListResponseModel>(
+                $"{Endpoints.Report}/monthly-report/{selectedMonth}/{selectedMonthlyYear}/{_pageNo}/{_pageSize}",
+                EnumHttpMethod.Get
+            );
+        }
+
+        await InjectService.DisableLoading();
+        StateHasChanged();
+    }
+
+    private async Task PageChanged(int i)
+    {
+        _pageNo = i;
+        await ApplyFilter();
+    }
+
+    private IEnumerable<IGrouping<string, ReportModel>> GetGroupedData()
+    {
+        if (responseModel?.Data?.Report == null)
+            return null;
+
+        return groupBy switch
+        {
+            "date" => responseModel.Data.Report.GroupBy(x => x.SaleInvoiceDate.ToDateTime().ToString("dd/MMM/yyyy")),
+            "day" => responseModel.Data.Report.GroupBy(x => x.SaleInvoiceDate.ToDateTime().ToString("dd")),
+            _ => responseModel.Data.Report.GroupBy(x => x.SaleInvoiceDate.ToDateTime().ToString("dd/MMM/yyyy"))
+        };
+    }
+
+    private string GetGroupByDisplayName()
+    {
+        return groupBy switch
+        {
+            "date" => "Date",
+            "day" => "Day of Month",
+            _ => "Date"
+        };
+    }
+}

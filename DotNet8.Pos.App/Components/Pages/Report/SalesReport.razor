@@ -1,0 +1,49 @@
+@using DotNet8.Pos.App.Models.Report
+@using DotNet8.Pos.App.Models.Custom
+
+@if (responseModel is not null)
+{
+    int count = 0;
+    <MudSimpleTable Style="overflow-x: auto;">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Sale Invoice Date</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (responseModel.Data?.Report != null)
+            {
+                @foreach (var item in responseModel.Data.Report)
+                {
+                <tr>
+                    <td>@(++count)</td>
+                    <td>
+                        @if (dateFormat == EnumReportDate.Daily)
+                        {
+                            @(item.SaleInvoiceDate.ToDateTime().ToString("dd/MMM/yyyy"));
+                        }
+                        else if (dateFormat == EnumReportDate.Monthly)
+                        {
+                            @(item.SaleInvoiceDate.ToDateTime().ToString("MMM/yyyy"));
+                        }
+                        else
+                        {
+                            @(item.SaleInvoiceDate.ToDateTime().ToString("yyyy"));
+                        }
+                    </td>
+                    <td>@string.Format("{0:N0} MMK", item.TotalAmount)</td>
+                </tr>
+                }
+            }
+        </tbody>
+    </MudSimpleTable>
+    <MudPagination SelectedChanged="PageChanged" Variant="MudBlazor.Variant.Filled" Count="@(responseModel?.PageSetting?.PageCount ?? 0)" Style="margin-top:3%" />
+}
+
+@code {
+    [Parameter] public ReportListResponseModel? responseModel { get; set; }
+    [Parameter] public EnumReportDate dateFormat { get; set; }
+    [Parameter] public EventCallback<int> PageChanged { get; set; }
+}

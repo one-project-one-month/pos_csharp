@@ -1,4 +1,5 @@
 ﻿using DotNet8.PosBackendApi.Shared;
+using DotNet8.PosBackendApi.Models.Setup.Report;
 
 namespace DotNet8.PosBackendApi.Features.Report;
 
@@ -175,6 +176,56 @@ public class ReportController : BaseController
         try
         {
             var lst = await _report.YearlyReport(fromDate, toDate, pageNo, pageSize);
+            var model = _response.Return(
+                new ReturnModel
+                {
+                    Token = RefreshToken(),
+                    Count = lst.Data.Count,
+                    EnumPos = EnumPos.Report,
+                    IsSuccess = lst.MessageResponse.IsSuccess,
+                    Message = lst.MessageResponse.Message,
+                    Item = lst.Data,
+                    PageSetting = lst.PageSetting
+                });
+            return Content(model);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError(ex);
+        }
+    }
+
+    [HttpGet("best-selling-products/{fromDate}/{toDate}/{pageNo}/{pageSize}")]
+    public async Task<IActionResult> BestSellingProductsReport(DateTime fromDate, DateTime toDate, int pageNo, int pageSize)
+    {
+        try
+        {
+            var lst = await _report.BestSellingProductsReport(fromDate, toDate, pageNo, pageSize);
+            var model = _response.Return(
+                new ReturnModel
+                {
+                    Token = RefreshToken(),
+                    Count = lst.Data.Count,
+                    EnumPos = EnumPos.Report,
+                    IsSuccess = lst.MessageResponse.IsSuccess,
+                    Message = lst.MessageResponse.Message,
+                    Item = lst.Data,
+                    PageSetting = lst.PageSetting
+                });
+            return Content(model);
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError(ex);
+        }
+    }
+
+    [HttpGet("sales-by-category/{fromDate}/{toDate}/{pageNo}/{pageSize}")]
+    public async Task<IActionResult> SalesByCategoryReport(DateTime fromDate, DateTime toDate, int pageNo, int pageSize)
+    {
+        try
+        {
+            var lst = await _report.SalesByCategoryReport(fromDate, toDate, pageNo, pageSize);
             var model = _response.Return(
                 new ReturnModel
                 {

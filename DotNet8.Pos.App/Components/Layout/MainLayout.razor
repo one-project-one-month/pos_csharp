@@ -89,16 +89,32 @@
 					</MudNavGroup>
 				}
 
-				@if (IsMenuGroupVisible("Reports", new List<string> { "Report", "Shop" }))
+				@if (IsMenuGroupVisible("Reports", new List<string> { "Daily Sales", "Monthly Sales", "Yearly Sales", "Best Selling Products", "Sales by Category", "Shop" }))
 				{
 					<MudNavGroup Title="Reports" Expanded="_reportsExpanded" Icon="@Icons.Material.Filled.Analytics" ExpandedChanged="ToggleReports">
-						@if (IsMenuItemVisible("Report"))
+						@if (IsMenuItemVisible("Daily Sales"))
 						{
-							<MudNavLink Match="NavLinkMatch.All" Href="/report" Icon="@Icons.Material.Filled.RepeatOn">Report</MudNavLink>
+							<MudNavLink Match="NavLinkMatch.All" Href="/report/daily" Icon="@Icons.Material.Filled.Today">Daily Sales</MudNavLink>
+						}
+						@if (IsMenuItemVisible("Monthly Sales"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/report/monthly" Icon="@Icons.Material.Filled.CalendarMonth">Monthly Sales</MudNavLink>
+						}
+						@if (IsMenuItemVisible("Yearly Sales"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/report/yearly" Icon="@Icons.Material.Filled.DateRange">Yearly Sales</MudNavLink>
+						}
+						@if (IsMenuItemVisible("Best Selling Products"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/report/best-selling" Icon="@Icons.Material.Filled.Star">Best Selling Products</MudNavLink>
+						}
+						@if (IsMenuItemVisible("Sales by Category"))
+						{
+							<MudNavLink Match="NavLinkMatch.All" Href="/report/sales-by-category" Icon="@Icons.Material.Filled.Category">Sales by Category</MudNavLink>
 						}
 						@if (IsMenuItemVisible("Shop"))
 						{
-							<MudNavLink Match="NavLinkMatch.All" Href="/shop" Icon="@Icons.Material.Filled.Shop">Shop</MudNavLink>
+							<MudNavLink Match="NavLinkMatch.Prefix" Href="/shop" Icon="@Icons.Material.Filled.Shop">Shop</MudNavLink>
 						}
 					</MudNavGroup>
 				}
@@ -149,11 +165,26 @@
 			}
 			else
 			{
+				UpdateMenuExpansionState();
+				NavigationManager.LocationChanged += HandleLocationChanged;
+
 				_isLoading = false;
 				await InjectService.DisableLoading();
 				StateHasChanged();
 			}
 		}
+	}
+
+	private void HandleLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+	{
+		UpdateMenuExpansionState();
+		StateHasChanged();
+	}
+
+	private void UpdateMenuExpansionState()
+	{
+		var currentUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+		_reportsExpanded = currentUri.AbsolutePath.Contains("/report");
 	}
 
 

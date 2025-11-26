@@ -1,0 +1,70 @@
+@page "/report/daily"
+@using DotNet8.Pos.App.Models.Report
+
+<MudGrid>
+	<MudItem xs="5" sm="4">
+		<MudStack Row="true" Justify="Justify.FlexStart">
+			<MudDatePicker Label="Start Date" Editable="true" Clearable="true" @bind-Date="@startDateValue" DateFormat="dd/MMM/yyyy" />
+			<MudDatePicker Label="End Date" Editable="true" Clearable="true" @bind-Date="@endDateValue" DateFormat="dd/MMM/yyyy" />
+		</MudStack>
+	</MudItem>
+</MudGrid>
+<MudButton Class="mt-5 mb-5" Variant="MudBlazor.Variant.Filled" Color="Color.Primary" OnClick="ApplyFilter">Apply</MudButton>
+<br />
+
+@if (responseModel is not null)
+{
+	int count = 0;
+	<MudSimpleTable Style="overflow-x: auto;">
+		<thead>
+			<tr>
+				<th>No.</th>
+				<th>Sale Invoice Date</th>
+				<th>Total Amount</th>
+			</tr>
+		</thead>
+		<tbody>
+			@if (responseModel.Data?.Report != null)
+			{
+				@foreach (var item in responseModel.Data.Report)
+				{
+					<tr>
+						<td>@(++count)</td>
+						<td>@(item.SaleInvoiceDate.ToDateTime().ToString("dd/MMM/yyyy"))</td>
+						<td>@string.Format("{0:N0} MMK", item.TotalAmount)</td>
+					</tr>
+				}
+			}
+		</tbody>
+	</MudSimpleTable>
+	<MudPagination SelectedChanged="PageChanged" Variant="MudBlazor.Variant.Filled" Count="@(responseModel?.PageSetting?.PageCount ?? 0)" Style="margin-top:3%" />
+}
+
+@code {
+	private ReportListResponseModel? responseModel;
+	private DateTime? startDateValue { get; set; }
+	private DateTime? endDateValue { get; set; }
+	private int _pageNo = 1;
+	private int _pageSize = 10;
+
+	private async Task ApplyFilter()
+	{
+		await InjectService.EnableLoading();
+		var fromDate = startDateValue?.ToString("yyyy-MM-dd");
+		var toDate = endDateValue?.ToString("yyyy-MM-dd");
+
+		responseModel = await HttpClientService.ExecuteAsync<ReportListResponseModel>(
+			$"{Endpoints.Report}/daily-report/{fromDate}/{toDate}/{_pageNo}/{_pageSize}",
+			EnumHttpMethod.Get
+		);
+
+		await InjectService.DisableLoading();
+		StateHasChanged();
+	}
+
+	private async Task PageChanged(int i)
+	{
+		_pageNo = i;
+		await ApplyFilter();
+	}
+}

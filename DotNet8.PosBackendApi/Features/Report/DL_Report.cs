@@ -1,4 +1,5 @@
 ﻿using DotNet8.PosBackendApi.Shared;
+using DotNet8.PosBackendApi.Models.Setup.Report;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DotNet8.PosBackendApi.Features.Report;
@@ -242,6 +243,84 @@ public class DL_Report
         }
         var report = await query
                 .Pagination(pageNo, pageSize)
+                .ToListAsync();
+
+        responseModel.Data = report;
+        responseModel.PageSetting = new PageSettingModel(pageNo, pageSize, pageCount, totalCount);
+        responseModel.MessageResponse = responseModel.Data.Count > 0
+            ? new MessageResponseModel(true, EnumStatus.Success.ToString())
+            : new MessageResponseModel(false, EnumStatus.NotFound.ToString());
+        return responseModel;
+    }
+
+    public async Task<BestSellingProductResponseModel> BestSellingProductsReport(DateTime fromDate, DateTime toDate, int pageNo, int pageSize)
+    {
+        BestSellingProductResponseModel responseModel = new BestSellingProductResponseModel();
+
+        var query = from inv in _context.TblSaleInvoices
+                    join det in _context.TblSaleInvoiceDetails on inv.VoucherNo equals det.VoucherNo
+                    join prod in _context.TblProducts on det.ProductCode equals prod.ProductCode
+                    where inv.SaleInvoiceDateTime >= fromDate && inv.SaleInvoiceDateTime <= toDate
+                    group new { det, prod } by new { prod.ProductCode, prod.ProductName } into g
+                    select new BestSellingProductModel
+                    {
+                        ProductCode = g.Key.ProductCode,
+                        ProductName = g.Key.ProductName,
+                        TotalQuantity = g.Sum(x => x.det.Quantity),
+                        TotalAmount = g.Sum(x => x.det.Amount)
+                    };
+
+        var orderedQuery = query.OrderByDescending(x => x.TotalQuantity);
+
+        int totalCount = await orderedQuery.CountAsync();
+        int pageCount = totalCount / pageSize;
+        if (totalCount % pageSize != 0)
+        {
+            pageCount++;
+        }
+
+        var report = await orderedQuery
+                .Skip((pageNo - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+        responseModel.Data = report;
+        responseModel.PageSetting = new PageSettingModel(pageNo, pageSize, pageCount, totalCount);
+        responseModel.MessageResponse = responseModel.Data.Count > 0
+            ? new MessageResponseModel(true, EnumStatus.Success.ToString())
+            : new MessageResponseModel(false, EnumStatus.NotFound.ToString());
+        return responseModel;
+    }
+
+    public async Task<SalesByCategoryResponseModel> SalesByCategoryReport(DateTime fromDate, DateTime toDate, int pageNo, int pageSize)
+    {
+        SalesByCategoryResponseModel responseModel = new SalesByCategoryResponseModel();
+
+        var query = from inv in _context.TblSaleInvoices
+                    join det in _context.TblSaleInvoiceDetails on inv.VoucherNo equals det.VoucherNo
+                    join prod in _context.TblProducts on det.ProductCode equals prod.ProductCode
+                    join cat in _context.TblProductCategories on prod.ProductCategoryCode equals cat.ProductCategoryCode
+                    where inv.SaleInvoiceDateTime >= fromDate && inv.SaleInvoiceDateTime <= toDate
+                    group new { det, cat } by new { cat.ProductCategoryCode, cat.ProductCategoryName } into g
+                    select new SalesByCategoryModel
+                    {
+                        ProductCategoryCode = g.Key.ProductCategoryCode,
+                        ProductCategoryName = g.Key.ProductCategoryName,
+                        TotalAmount = g.Sum(x => x.det.Amount)
+                    };
+
+        var orderedQuery = query.OrderByDescending(x => x.TotalAmount);
+
+        int totalCount = await orderedQuery.CountAsync();
+        int pageCount = totalCount / pageSize;
+        if (totalCount % pageSize != 0)
+        {
+            pageCount++;
+        }
+
+        var report = await orderedQuery
+                .Skip((pageNo - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
         responseModel.Data = report;

@@ -1,4 +1,6 @@
-﻿namespace DotNet8.PosBackendApi.Features.Report;
+﻿using DotNet8.PosBackendApi.Models.Setup.Report;
+
+namespace DotNet8.PosBackendApi.Features.Report;
 
 public class BL_Report
 {
@@ -46,6 +48,18 @@ public class BL_Report
     public async Task<MonthlyReportResponseModel> YearlyReport(DateTime fromDate, DateTime toDate, int pageNo, int pageSize)
     {
         var response = await _report.YearlyReport(fromDate, toDate, pageNo, pageSize);
+        return response;
+    }
+
+    public async Task<BestSellingProductResponseModel> BestSellingProductsReport(DateTime fromDate, DateTime toDate, int pageNo, int pageSize)
+    {
+        var response = await _report.BestSellingProductsReport(fromDate, toDate, pageNo, pageSize);
+        return response;
+    }
+
+    public async Task<SalesByCategoryResponseModel> SalesByCategoryReport(DateTime fromDate, DateTime toDate, int pageNo, int pageSize)
+    {
+        var response = await _report.SalesByCategoryReport(fromDate, toDate, pageNo, pageSize);
         return response;
     }
 
