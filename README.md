@@ -1,4 +1,4 @@
-# POS Backend with C# .NET 8
+# POS C# .NET 8
 
 ### Overview
 
